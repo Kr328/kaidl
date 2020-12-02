@@ -16,19 +16,19 @@ class KaidlProcessor : SymbolProcessor {
     }
 
     override fun init(
-            options: Map<String, String>,
-            kotlinVersion: KotlinVersion,
-            codeGenerator: CodeGenerator,
-            logger: KSPLogger
+        options: Map<String, String>,
+        kotlinVersion: KotlinVersion,
+        codeGenerator: CodeGenerator,
+        logger: KSPLogger
     ) {
         this.codeGenerator = codeGenerator
     }
 
     override fun process(resolver: Resolver) {
         resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
-                .filterIsInstance<KSClassDeclaration>()
-                .filter { it.classKind == ClassKind.INTERFACE }
-                .forEach(this::generate)
+            .filterIsInstance<KSClassDeclaration>()
+            .filter { it.classKind == ClassKind.INTERFACE }
+            .forEach(this::generate)
     }
 
     private fun generate(classDeclaration: KSClassDeclaration) {
@@ -37,13 +37,13 @@ class KaidlProcessor : SymbolProcessor {
 
         codeGenerator.createNewFile(className.packageName, className.simpleName).writer().use {
             FileSpec.builder(className.packageName, "")
-                    .addComment("Generated for $className")
-                    .generateStub(className, methods)
-                    .generateProxy(className, methods)
-                    .generateWrap(className)
-                    .generateUnwrap(className)
-                    .build()
-                    .writeTo(it)
+                .addComment("Generated for $className")
+                .generateStub(className, methods)
+                .generateProxy(className, methods)
+                .generateWrap(className)
+                .generateUnwrap(className)
+                .build()
+                .writeTo(it)
         }
     }
 }

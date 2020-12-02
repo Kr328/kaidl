@@ -6,19 +6,19 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.UNIT
 
 enum class Type {
-    Internal, AndroidInterface, IInterface, Parcelable
+    Internal, BinderInterface, IInterface, Parcelable
 }
 
 data class ObjectType(
-        val className: ClassName,
-        val type: Type,
+    val className: ClassName,
+    val type: Type,
 )
 
 data class Method(
-        val id: Int,
-        val name: String,
-        val returnType: ObjectType,
-        val parameters: List<Pair<String, ObjectType>>
+    val id: Int,
+    val name: String,
+    val returnType: ObjectType,
+    val parameters: List<Pair<String, ObjectType>>
 )
 
 fun KSDeclaration.getAnnotation(type: ClassName, name: String?): Pair<KSAnnotation, Any?>? {
@@ -40,12 +40,12 @@ fun KSDeclaration.getAnnotation(type: ClassName, name: String?): Pair<KSAnnotati
 
 fun KSClassDeclaration.parseMethods(): List<Method> {
     val functions = declarations
-            .filterIsInstance<KSFunctionDeclaration>()
-            .filter { it.functionKind == FunctionKind.MEMBER }
-            .map { it to (it.getAnnotation(CODE, "value")?.second as Int?) }
+        .filterIsInstance<KSFunctionDeclaration>()
+        .filter { it.functionKind == FunctionKind.MEMBER }
+        .map { it to (it.getAnnotation(CODE, "value")?.second as Int?) }
 
     val definedCodes = functions
-            .mapNotNull { it.second }
+        .mapNotNull { it.second }
 
     var autoCode = 0
 
@@ -62,7 +62,7 @@ fun KSClassDeclaration.parseMethods(): List<Method> {
         val code = it.second ?: getAutoCode()
         val name = it.first.simpleName.asString()
         val returnType = it.first.returnType?.resolve()?.parseObjectType()
-                ?: ObjectType(UNIT, Type.Internal)
+            ?: ObjectType(UNIT, Type.Internal)
         val params = it.first.parameters.map { p ->
             p.name!!.asString() to p.type.resolve().parseObjectType()
         }
@@ -83,7 +83,7 @@ fun KSType.parseObjectType(): ObjectType {
         "android.os.IBinder" -> Type.Internal
         else -> when {
             declaration.getAnnotation(INTERFACE, null) != null ->
-                Type.AndroidInterface
+                Type.BinderInterface
             supers.any { s -> s.declaration.qualifiedName?.asString() == IINTERFACE.canonicalName } ->
                 Type.IInterface
             supers.any { s -> s.declaration.qualifiedName?.asString() == PARCELABLE.canonicalName } ->
@@ -94,8 +94,8 @@ fun KSType.parseObjectType(): ObjectType {
     }
 
     return ObjectType(
-            declaration.toClassName().copy(nullable = isMarkedNullable) as ClassName,
-            type
+        declaration.toClassName().copy(nullable = isMarkedNullable) as ClassName,
+        type
     )
 }
 

@@ -1,89 +1,89 @@
 package com.github.kr328.kaidl
 
 import com.github.kr328.kaidl.builder.*
+import com.github.kr328.kaidl.resolver.CodeValue
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlin.reflect.KClass
 
-fun FileSpec.Builder.addStub(forClass: ClassName, methods: List<Method>): FileSpec.Builder {
+fun FileSpec.Builder.addStub(forClass: ClassName, functions: List<FunSpec>): FileSpec.Builder {
     val stub =
-        TypeSpec.classBuilder(ClassName(forClass.packageName, forClass.simpleName + "Delegate"))
-            .primaryConstructor(FunSpec.constructorBuilder().addParameter("impl", forClass).build())
-            .addModifiers(KModifier.OPEN)
-            .superclass(BINDER)
-            .addSuperinterface(forClass, "impl")
+            TypeSpec.classBuilder(ClassName(forClass.packageName, forClass.simpleName + "Delegate"))
+                    .primaryConstructor(FunSpec.constructorBuilder().addParameter("impl", forClass).build())
+                    .addModifiers(KModifier.OPEN)
+                    .superclass(BINDER)
+                    .addSuperinterface(forClass, "impl")
+                    .addCompanion(forClass, functions)
+                    .addGetDescriptor()
+                    .addOnTransact(functions)
 
-    return addType(
-        stub
-            .addCompanion(forClass, methods)
-            .addGetDescriptor()
-            .addOnTransact(methods)
-            .build()
-    )
+    return addType(stub.build())
 }
 
 fun FileSpec.Builder.addWrap(forClass: ClassName): FileSpec.Builder {
     val code = CodeBlock.builder()
-        .beginControlFlow("if (this is %T)", IBINDER)
-        .addStatement("return this")
-        .nextControlFlow("else")
-        .addStatement("return %T(this)", forClass.delegate)
-        .endControlFlow()
+            .beginControlFlow("if (this is %T)", IBINDER)
+            .addStatement("return this")
+            .nextControlFlow("else")
+            .addStatement("return %T(this)", forClass.delegate)
+            .endControlFlow()
 
     return addFunction(
-        FunSpec.builder("wrap")
-            .receiver(forClass)
-            .returns(IBINDER)
-            .addCode(code.build())
-            .build()
+            FunSpec.builder("wrap")
+                    .receiver(forClass)
+                    .returns(IBINDER)
+                    .addCode(code.build())
+                    .build()
     )
 }
 
-fun FileSpec.Builder.addProxyClass(forClass: ClassName, methods: List<Method>): FileSpec.Builder {
+fun FileSpec.Builder.addProxyClass(forClass: ClassName, functions: List<FunSpec>): FileSpec.Builder {
     val clazz = TypeSpec.classBuilder(forClass.proxy)
-        .addSuperinterface(forClass)
-        .primaryConstructor(FunSpec.constructorBuilder().addParameter("remote", IBINDER).build())
-        .addProperty(PropertySpec.builder("remote", IBINDER).initializer("remote").build())
+            .addSuperinterface(forClass)
+            .primaryConstructor(FunSpec.constructorBuilder().addParameter("remote", IBINDER).build())
+            .addProperty(PropertySpec.builder("remote", IBINDER).initializer("remote").build())
 
-    for (m in methods)
-        clazz.addProxy(forClass, m)
+    for (f in functions)
+        clazz.addProxy(forClass, f)
 
     return addType(clazz.build())
 }
 
 fun FileSpec.Builder.addUnwrap(forClass: ClassName): FileSpec.Builder {
     val code = CodeBlock.builder()
-        .beginControlFlow("if (this is %T)", forClass)
-        .addStatement("return this")
-        .nextControlFlow("else")
-        .addStatement("return %T(this)", forClass.proxy)
-        .endControlFlow()
+            .beginControlFlow("if (this is %T)", forClass)
+            .addStatement("return this")
+            .nextControlFlow("else")
+            .addStatement("return %T(this)", forClass.proxy)
+            .endControlFlow()
 
     return addFunction(
-        FunSpec.builder("unwrap")
-            .addParameter(
-                "c",
-                ClassName(
-                    KClass::class.java.packageName,
-                    KClass::class.java.simpleName
-                ).parameterizedBy(forClass)
-            )
-            .receiver(IBINDER)
-            .returns(forClass)
-            .addCode(code.build())
-            .build()
+            FunSpec.builder("unwrap")
+                    .addParameter(
+                            "c",
+                            ClassName(
+                                    KClass::class.java.packageName,
+                                    KClass::class.java.simpleName
+                            ).parameterizedBy(forClass)
+                    )
+                    .receiver(IBINDER)
+                    .returns(forClass)
+                    .addCode(code.build())
+                    .build()
     )
 }
 
 fun TypeSpec.Builder.addCompanion(
-    forClass: ClassName,
-    methods: List<Method>
+        forClass: ClassName,
+        functions: List<FunSpec>
 ): TypeSpec.Builder {
     val companion = TypeSpec.companionObjectBuilder().apply {
+        val codes = functions.mapOfCodes()
+
         addDescriptor(forClass)
 
-        methods.forEach {
-            addTransactProperty(it)
+        functions.forEach {
+            addTransactProperty(it, codes[it.name] ?: throw IllegalArgumentException())
         }
     }
 
@@ -92,45 +92,37 @@ fun TypeSpec.Builder.addCompanion(
 
 fun TypeSpec.Builder.addGetDescriptor(): TypeSpec.Builder {
     val func = FunSpec.builder("getInterfaceDescriptor")
-        .addModifiers(KModifier.OVERRIDE)
-        .returns(STRING.copy(nullable = true))
-        .addCode("return DESCRIPTOR")
+            .addModifiers(KModifier.OVERRIDE)
+            .returns(STRING.copy(nullable = true))
+            .addCode("return DESCRIPTOR")
 
     return addFunction(func.build())
 }
 
 fun TypeSpec.Builder.addOnTransact(
-    methods: List<Method>
+        functions: List<FunSpec>
 ): TypeSpec.Builder {
     val code = CodeBlock.builder().apply {
         beginControlFlow("when (code)")
 
-        for (m in methods) {
-            beginControlFlow("%N ->", m.transactionProperty.name)
+        for (f in functions) {
+            beginControlFlow("%N ->", f.transactionProperty.name)
 
             addStatement("reply ?: return false")
 
             addStatement("`data`.enforceInterface(%N)", descriptorProperty.name)
 
-            for (p in m.parameters) {
-                addReadFromParcel(p.first, p.second, "data")
+            for (p in f.parameters) {
+                addReadFromParcel(p.name, p.type, "data")
             }
 
-            beginControlFlow("try") // try
+            val args = f.parameters.joinToString(", ") { it.name }
 
-            val args = m.parameters.joinToString(", ") { it.first }
-
-            addStatement("val %N: %T = %N($args)", "_result", m.returnType.className, m.name)
+            addStatement("val %N: %T = %N($args)", "_result", f.returnType ?: UNIT, f.name)
 
             addStatement("reply.writeNoException()")
 
-            addWriteToParcel("_result", m.returnType, "reply")
-
-            nextControlFlow("catch (e: Exception)") // catch
-
-            addStatement("reply.writeException(e)")
-
-            endControlFlow() // try
+            addWriteToParcel("_result", f.returnType ?: UNIT, "reply")
 
             endControlFlow() // code ->
         }
@@ -148,49 +140,45 @@ fun TypeSpec.Builder.addOnTransact(
 
 
     val func = FunSpec.builder("onTransact")
-        .addModifiers(KModifier.OVERRIDE)
-        .addParameter(ParameterSpec("code", INT))
-        .addParameter(ParameterSpec("data", PARCEL))
-        .addParameter(ParameterSpec("reply", PARCEL.copy(nullable = true)))
-        .addParameter(ParameterSpec("flags", INT))
-        .returns(BOOLEAN)
-        .addCode(code.build())
+            .addModifiers(KModifier.OVERRIDE)
+            .addParameter(ParameterSpec("code", INT))
+            .addParameter(ParameterSpec("data", PARCEL))
+            .addParameter(ParameterSpec("reply", PARCEL.copy(nullable = true)))
+            .addParameter(ParameterSpec("flags", INT))
+            .returns(BOOLEAN)
+            .addCode(code.build())
 
     return addFunction(func.build())
 }
 
-fun TypeSpec.Builder.addProxy(forClass: ClassName, method: Method): TypeSpec.Builder {
+fun TypeSpec.Builder.addProxy(forClass: ClassName, function: FunSpec): TypeSpec.Builder {
     val code = CodeBlock.builder()
-        .addStatement("val `data` = Parcel.obtain()")
-        .addStatement("val `reply` = Parcel.obtain()")
-    val func = FunSpec.builder(method.name)
-        .addModifiers(KModifier.OVERRIDE)
-        .returns(method.returnType.className)
+            .addStatement("val `data` = Parcel.obtain()")
+            .addStatement("val `reply` = Parcel.obtain()")
+    val func = function.toBuilder().addModifiers(KModifier.OVERRIDE)
 
     with(code) {
         beginControlFlow("return try")
 
         addStatement(
-            "`data`.writeInterfaceToken(%T.%N)",
-            forClass.delegate,
-            descriptorProperty.name
+                "`data`.writeInterfaceToken(%T.%N)",
+                forClass.delegate,
+                descriptorProperty.name
         )
 
-        for (p in method.parameters) {
-            func.addParameter(p.first, p.second.className)
-
-            addWriteToParcel(p.first, p.second, "data")
+        for (p in function.parameters) {
+            addWriteToParcel(p.name, p.type, "data")
         }
 
-        code.addStatement(
-            "remote.transact(%T.%N, `data`, reply, 0)",
-            forClass.delegate,
-            method.transactionProperty.name
+        addStatement(
+                "remote.transact(%T.%N, `data`, reply, 0)",
+                forClass.delegate,
+                function.transactionProperty.name
         )
 
         addStatement("reply.readException()")
 
-        addReadFromParcel("_result", method.returnType, "reply")
+        addReadFromParcel("_result", function.returnType ?: UNIT, "reply")
 
         addStatement("_result")
 
@@ -203,4 +191,23 @@ fun TypeSpec.Builder.addProxy(forClass: ClassName, method: Method): TypeSpec.Bui
     }
 
     return addFunction(func.addCode(code.build()).build())
+}
+
+fun List<FunSpec>.mapOfCodes(): Map<String, Int> {
+    val definedCodes = mapNotNull { it.tag(CodeValue::class)?.code }
+
+    var generatedCode = -1
+
+    val generateCode: () -> Int = {
+        generatedCode++
+
+        while (generatedCode in definedCodes)
+            generatedCode++
+
+        generatedCode
+    }
+
+    return map {
+        it.name to (it.tag(CodeValue::class)?.code ?: generateCode())
+    }.toMap()
 }

@@ -1,5 +1,8 @@
 package com.github.kr328.kaidl
 
+import com.github.kr328.kaidl.resolver.resolveFunctions
+import com.github.kr328.kaidl.resolver.store
+import com.github.kr328.kaidl.resolver.toClassName
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -16,34 +19,41 @@ class KaidlProcessor : SymbolProcessor {
     }
 
     override fun init(
-        options: Map<String, String>,
-        kotlinVersion: KotlinVersion,
-        codeGenerator: CodeGenerator,
-        logger: KSPLogger
+            options: Map<String, String>,
+            kotlinVersion: KotlinVersion,
+            codeGenerator: CodeGenerator,
+            logger: KSPLogger
     ) {
         this.codeGenerator = codeGenerator
     }
 
     override fun process(resolver: Resolver) {
+        resolver.store()
+
         resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
-            .filterIsInstance<KSClassDeclaration>()
-            .filter { it.classKind == ClassKind.INTERFACE }
-            .forEach(this::generate)
+                .filterIsInstance<KSClassDeclaration>()
+                .forEach {
+                    require(it.classKind == ClassKind.INTERFACE) {
+                        throw IllegalArgumentException("@BinderInterface support only interfaces")
+                    }
+
+                    generate(it)
+                }
     }
 
     private fun generate(classDeclaration: KSClassDeclaration) {
         val className = classDeclaration.toClassName()
-        val methods = classDeclaration.parseMethods()
+        val functions = classDeclaration.resolveFunctions()
 
         codeGenerator.createNewFile(className.packageName, className.simpleName).writer().use {
             FileSpec.builder(className.packageName, "")
-                .addComment("Generated for $className")
-                .addStub(className, methods)
-                .addProxyClass(className, methods)
-                .addWrap(className)
-                .addUnwrap(className)
-                .build()
-                .writeTo(it)
+                    .addComment("Generated for $className")
+                    .addStub(className, functions)
+                    .addProxyClass(className, functions)
+                    .addWrap(className)
+                    .addUnwrap(className)
+                    .build()
+                    .writeTo(it)
         }
     }
 }

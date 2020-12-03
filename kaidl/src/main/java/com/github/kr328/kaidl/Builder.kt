@@ -5,7 +5,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlin.reflect.KClass
 
-fun FileSpec.Builder.generateStub(forClass: ClassName, methods: List<Method>): FileSpec.Builder {
+fun FileSpec.Builder.addStub(forClass: ClassName, methods: List<Method>): FileSpec.Builder {
     val stub =
         TypeSpec.classBuilder(ClassName(forClass.packageName, forClass.simpleName + "Delegate"))
             .primaryConstructor(FunSpec.constructorBuilder().addParameter("impl", forClass).build())
@@ -15,35 +15,50 @@ fun FileSpec.Builder.generateStub(forClass: ClassName, methods: List<Method>): F
 
     return addType(
         stub
-            .generateCompanion(methods)
-            .generateOnTransact(forClass, methods)
+            .addCompanion(forClass, methods)
+            .addGetDescriptor()
+            .addOnTransact(methods)
             .build()
     )
 }
 
-fun FileSpec.Builder.generateWrap(forClass: ClassName): FileSpec.Builder {
+fun FileSpec.Builder.addWrap(forClass: ClassName): FileSpec.Builder {
+    val code = CodeBlock.builder()
+        .beginControlFlow("if (this is %T)", IBINDER)
+        .addStatement("return this")
+        .nextControlFlow("else")
+        .addStatement("return %T(this)", forClass.delegate)
+        .endControlFlow()
+
     return addFunction(
         FunSpec.builder("wrap")
             .receiver(forClass)
             .returns(IBINDER)
-            .addCode(CodeBlock.of("return if ( this is ${IBINDER.canonicalName} ) this else ${forClass.simpleName}Delegate(this)"))
+            .addCode(code.build())
             .build()
     )
 }
 
-fun FileSpec.Builder.generateProxy(forClass: ClassName, methods: List<Method>): FileSpec.Builder {
-    val clazz = TypeSpec.classBuilder(forClass.simpleName + "Proxy")
+fun FileSpec.Builder.addProxyClass(forClass: ClassName, methods: List<Method>): FileSpec.Builder {
+    val clazz = TypeSpec.classBuilder(forClass.proxy)
         .addSuperinterface(forClass)
         .primaryConstructor(FunSpec.constructorBuilder().addParameter("remote", IBINDER).build())
         .addProperty(PropertySpec.builder("remote", IBINDER).initializer("remote").build())
 
     for (m in methods)
-        clazz.generateProxy(forClass, m)
+        clazz.addProxy(forClass, m)
 
     return addType(clazz.build())
 }
 
-fun FileSpec.Builder.generateUnwrap(forClass: ClassName): FileSpec.Builder {
+fun FileSpec.Builder.addUnwrap(forClass: ClassName): FileSpec.Builder {
+    val code = CodeBlock.builder()
+        .beginControlFlow("if (this is %T)", forClass)
+        .addStatement("return this")
+        .nextControlFlow("else")
+        .addStatement("return %T(this)", forClass.proxy)
+        .endControlFlow()
+
     return addFunction(
         FunSpec.builder("unwrap")
             .addParameter(
@@ -55,15 +70,18 @@ fun FileSpec.Builder.generateUnwrap(forClass: ClassName): FileSpec.Builder {
             )
             .receiver(IBINDER)
             .returns(forClass)
-            .addCode(CodeBlock.of("return if (this is ${forClass.simpleName}) this else ${forClass.simpleName}Proxy(this)"))
+            .addCode(code.build())
             .build()
     )
 }
 
-fun TypeSpec.Builder.generateCompanion(
+fun TypeSpec.Builder.addCompanion(
+    forClass: ClassName,
     methods: List<Method>
 ): TypeSpec.Builder {
     val companion = TypeSpec.companionObjectBuilder().apply {
+        addDescriptor(forClass)
+
         methods.forEach {
             addTransactProperty(it)
         }
@@ -72,17 +90,27 @@ fun TypeSpec.Builder.generateCompanion(
     return addType(companion.build())
 }
 
-fun TypeSpec.Builder.generateOnTransact(
-    forClass: ClassName,
+fun TypeSpec.Builder.addGetDescriptor(): TypeSpec.Builder {
+    val func = FunSpec.builder("getInterfaceDescriptor")
+        .addModifiers(KModifier.OVERRIDE)
+        .returns(STRING.copy(nullable = true))
+        .addCode("return DESCRIPTOR")
+
+    return addFunction(func.build())
+}
+
+fun TypeSpec.Builder.addOnTransact(
     methods: List<Method>
 ): TypeSpec.Builder {
     val code = CodeBlock.builder().apply {
         beginControlFlow("when (code)")
 
         for (m in methods) {
-            beginControlFlow("%T.%N ->", forClass.delegate, m.transactProperty.name)
+            beginControlFlow("%N ->", m.transactionProperty.name)
 
-            addStatement("requireNotNull(reply)")
+            addStatement("reply ?: return false")
+
+            addStatement("`data`.enforceInterface(%N)", descriptorProperty.name)
 
             for (p in m.parameters) {
                 addReadFromParcel(p.first, p.second, "data")
@@ -131,7 +159,7 @@ fun TypeSpec.Builder.generateOnTransact(
     return addFunction(func.build())
 }
 
-fun TypeSpec.Builder.generateProxy(forClass: ClassName, method: Method): TypeSpec.Builder {
+fun TypeSpec.Builder.addProxy(forClass: ClassName, method: Method): TypeSpec.Builder {
     val code = CodeBlock.builder()
         .addStatement("val `data` = Parcel.obtain()")
         .addStatement("val `reply` = Parcel.obtain()")
@@ -142,6 +170,12 @@ fun TypeSpec.Builder.generateProxy(forClass: ClassName, method: Method): TypeSpe
     with(code) {
         beginControlFlow("return try")
 
+        addStatement(
+            "`data`.writeInterfaceToken(%T.%N)",
+            forClass.delegate,
+            descriptorProperty.name
+        )
+
         for (p in method.parameters) {
             func.addParameter(p.first, p.second.className)
 
@@ -151,7 +185,7 @@ fun TypeSpec.Builder.generateProxy(forClass: ClassName, method: Method): TypeSpe
         code.addStatement(
             "remote.transact(%T.%N, `data`, reply, 0)",
             forClass.delegate,
-            method.transactProperty.name
+            method.transactionProperty.name
         )
 
         addStatement("reply.readException()")

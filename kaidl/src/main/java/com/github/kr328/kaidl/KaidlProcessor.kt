@@ -38,10 +38,10 @@ class KaidlProcessor : SymbolProcessor {
         codeGenerator.createNewFile(className.packageName, className.simpleName).writer().use {
             FileSpec.builder(className.packageName, "")
                 .addComment("Generated for $className")
-                .generateStub(className, methods)
-                .generateProxy(className, methods)
-                .generateWrap(className)
-                .generateUnwrap(className)
+                .addStub(className, methods)
+                .addProxyClass(className, methods)
+                .addWrap(className)
+                .addUnwrap(className)
                 .build()
                 .writeTo(it)
         }

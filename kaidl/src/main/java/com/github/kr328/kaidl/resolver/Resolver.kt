@@ -4,8 +4,14 @@ import com.google.devtools.ksp.processing.Resolver
 
 private val localResolver = ThreadLocal<Resolver>()
 
-fun Resolver.store() {
+fun Resolver.store(block: () -> Unit) {
     localResolver.set(this)
+
+    try {
+        block()
+    } finally {
+        localResolver.remove()
+    }
 }
 
 fun loadResolver(): Resolver {

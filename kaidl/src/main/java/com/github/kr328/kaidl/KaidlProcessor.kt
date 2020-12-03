@@ -28,9 +28,8 @@ class KaidlProcessor : SymbolProcessor {
     }
 
     override fun process(resolver: Resolver) {
-        resolver.store()
-
-        resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
+        resolver.store {
+            resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
                 .filterIsInstance<KSClassDeclaration>()
                 .forEach {
                     require(it.classKind == ClassKind.INTERFACE) {
@@ -39,6 +38,7 @@ class KaidlProcessor : SymbolProcessor {
 
                     generate(it)
                 }
+        }
     }
 
     private fun generate(classDeclaration: KSClassDeclaration) {

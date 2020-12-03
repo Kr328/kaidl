@@ -1,5 +1,6 @@
 package com.github.kr328.kaidl.test
 
+import android.os.IInterface
 import com.github.kr328.kaidl.BinderInterface
 
 @BinderInterface
@@ -18,6 +19,6 @@ interface DataInterface {
 
 @BinderInterface
 interface MainInterface {
-    fun register(l: ListenInterface)
+    fun register(l: ListenInterface, callback: IInterface)
     fun data(): DataInterface
 }

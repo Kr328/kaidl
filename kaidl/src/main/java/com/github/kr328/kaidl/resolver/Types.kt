@@ -12,10 +12,20 @@ enum class ParcelableType {
     BinderInterface, AidlInterface, Parcelable
 }
 
+fun KSClassDeclaration.resolveParents(): List<KSClassDeclaration> {
+    val parent = parentDeclaration
+
+    return if ( parent != null && parent is KSClassDeclaration ) {
+        parent.resolveParents() + parent
+    } else {
+        emptyList()
+    }
+}
+
 fun KSDeclaration.toClassName(): ClassName {
     require(this is KSClassDeclaration) { throw IllegalArgumentException() }
 
-    return ClassName(packageName.asString(), simpleName.asString())
+    return ClassName(packageName.asString(), resolveParents().map { it.simpleName.asString() } + simpleName.asString())
 }
 
 fun KSType.resolveTypeName(): TypeName {

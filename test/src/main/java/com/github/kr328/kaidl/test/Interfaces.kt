@@ -21,4 +21,3 @@ interface MainInterface {
     fun register(l: ListenInterface)
     fun data(): DataInterface
 }
-

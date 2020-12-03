@@ -18,12 +18,6 @@ fun KSDeclaration.toClassName(): ClassName {
     return ClassName(packageName.asString(), simpleName.asString())
 }
 
-fun ClassName.markNullable(nullable: Boolean): ClassName {
-    canonicalName
-
-    return copy(nullable = nullable) as ClassName
-}
-
 fun KSType.resolveTypeName(): TypeName {
     val c = declaration.toClassName().copy(nullable = isMarkedNullable) as ClassName
 

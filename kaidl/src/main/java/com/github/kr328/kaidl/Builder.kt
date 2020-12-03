@@ -61,10 +61,7 @@ fun FileSpec.Builder.addUnwrap(forClass: ClassName): FileSpec.Builder {
             FunSpec.builder("unwrap")
                     .addParameter(
                             "c",
-                            ClassName(
-                                    KClass::class.java.packageName,
-                                    KClass::class.java.simpleName
-                            ).parameterizedBy(forClass)
+                            KClass::class.asClassName().parameterizedBy(forClass)
                     )
                     .receiver(IBINDER)
                     .returns(forClass)

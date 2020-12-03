@@ -44,48 +44,54 @@ fun CodeBlock.Builder.addReadFromParcel(
             addStatement("first to second")
         }
         "kotlin.collections.List" -> {
+            type as ParameterizedTypeName
+
             beginControlFlow(
-                    "%M(%N.readInt())",
-                    MemberName("kotlin.collections", "List"),
+                    "%T(%N.readInt())",
+                    type,
                     parcelName
             )
 
-            addReadFromParcel((type as ParameterizedTypeName).typeArguments[0], parcelName)
+            addReadFromParcel(type.typeArguments[0], parcelName)
 
             endControlFlow()
         }
         "kotlin.collections.Array" -> {
+            type as ParameterizedTypeName
+
             beginControlFlow(
-                    "%M(%N.readInt())",
-                    MemberName("kotlin.collections", "Array"),
+                    "%T(%N.readInt())",
+                    type,
                     parcelName
             )
 
-            addReadFromParcel((type as ParameterizedTypeName).typeArguments[0], parcelName)
+            addReadFromParcel(type.typeArguments[0], parcelName)
 
             endControlFlow()
         }
         "kotlin.collections.Set" -> {
+            type as ParameterizedTypeName
+
             beginControlFlow(
-                    "%M(%N.readInt())",
-                    MemberName("kotlin.collections", "List"),
+                    "%T(%N.readInt())",
+                    LIST.parameterizedBy(type.typeArguments[0]),
                     parcelName
             )
 
-            addReadFromParcel((type as ParameterizedTypeName).typeArguments[0], parcelName)
+            addReadFromParcel(type.typeArguments[0], parcelName)
 
             endControlFlow()
 
             add(".%M()", MemberName("kotlin.collections", "toSet"))
         }
         "kotlin.collections.Map" -> {
+            type as ParameterizedTypeName
+
             beginControlFlow(
-                    "%M(%N.readInt())",
-                    MemberName("kotlin.collections", "List"),
+                    "%T(%N.readInt())",
+                    LIST.parameterizedBy(PAIR.parameterizedBy(type.typeArguments[0], type.typeArguments[1])),
                     parcelName
             )
-
-            type as ParameterizedTypeName
 
             addReadFromParcel(PAIR.parameterizedBy(type.typeArguments[0], type.typeArguments[1]), parcelName)
 

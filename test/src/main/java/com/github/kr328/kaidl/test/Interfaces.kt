@@ -19,6 +19,6 @@ interface DataInterface {
 
 @BinderInterface
 interface MainInterface {
-    fun register(l: ListenInterface, callback: IInterface)
+    fun register(l: ListenInterface)
     fun data(): DataInterface
 }

@@ -122,6 +122,8 @@ fun suspendTransaction(
 ) {
     val completable = data.readStrongBinder()
 
+    var finializer: () -> Unit = {}
+
     val job = GlobalScope.launch {
         val r = Parcel.obtain()
 
@@ -148,6 +150,8 @@ fun suspendTransaction(
         } finally {
             withContext(NonCancellable) {
                 r.recycle()
+
+                finializer()
             }
         }
     }
@@ -157,6 +161,20 @@ fun suspendTransaction(
             job.cancel()
         }
     }
+
+    val link = IBinder.DeathRecipient {
+        job.cancel()
+    }
+
+    finializer = {
+        try {
+            completable.unlinkToDeath(link, 0)
+        } catch (ignored: Exception) {
+
+        }
+    }
+
+    completable.linkToDeath(link, 0)
 
     reply.writeNoException()
     reply.writeStrongBinder(context)

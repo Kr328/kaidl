@@ -1,20 +1,31 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("symbol-processing") version "1.4.10-dev-experimental-20201120"
+    id("symbol-processing")
 }
 
-var kotlinVersion: String by rootProject.extra
+val gCompileSdkVersion: Int by rootProject.extra
+val gTargetSdkVersion: Int by rootProject.extra
+val gMinSdkVersion: Int by rootProject.extra
+
+val gVersionCode: Int by rootProject.extra
+val gVersionName: String by rootProject.extra
+
+val gKotlinVersion: String by rootProject.extra
+val gKotlinCoroutineVersion: String by rootProject.extra
+val gJunitVersion: String by rootProject.extra
+val gAndroidXJunitVersion: String by rootProject.extra
+val gAndroidXEspressoVersion: String by rootProject.extra
 
 android {
-    compileSdkVersion(30)
+    compileSdkVersion(gCompileSdkVersion)
 
     defaultConfig {
-        minSdkVersion(21)
-        targetSdkVersion(30)
+        minSdkVersion(gMinSdkVersion)
+        targetSdkVersion(gTargetSdkVersion)
 
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = gVersionCode
+        versionName = gVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -39,11 +50,11 @@ dependencies {
     ksp(project(":kaidl"))
     implementation(project(":kaidl-runtime"))
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
-    testImplementation("junit:junit:4.13.1")
-    androidTestImplementation("androidx.test.ext:junit:1.1.2")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$gKotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$gKotlinCoroutineVersion")
+    testImplementation("junit:junit:$gJunitVersion")
+    androidTestImplementation("androidx.test.ext:junit:$gAndroidXJunitVersion")
+    androidTestImplementation("androidx.test.espresso:espresso-core:$gAndroidXEspressoVersion")
 }
 
 afterEvaluate {

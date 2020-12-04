@@ -3,7 +3,8 @@ plugins {
     id("kotlin-android")
 }
 
-val kotlinVersion: String by rootProject.extra
+val gKotlinVersion: String by rootProject.extra
+val gKotlinCoroutineVersion: String by rootProject.extra
 
 android {
     compileSdkVersion(30)
@@ -32,6 +33,6 @@ android {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$gKotlinVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$gKotlinCoroutineVersion")
 }

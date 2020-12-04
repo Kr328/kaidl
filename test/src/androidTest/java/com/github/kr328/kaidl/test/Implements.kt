@@ -23,3 +23,17 @@ class BasicTypeImpl : BasicTypeInterface {
     override fun echoBundle(v: Bundle) = v
     override fun echoSparseBooleanArray(v: SparseBooleanArray) = v
 }
+
+class ContainerImpl : ContainerInterface {
+    override fun echoIntList(v: List<Int>): List<Int> = v
+    override fun echoDoubleList(v: List<Double>): List<Double> = v
+    override fun echoStringLongMap(v: Map<String, Long>): Map<String, Long> = v
+    override fun echoLongSetList(v: List<Set<Long>>): List<Set<Long>> = v
+}
+
+class NullableImpl : NullableInterface {
+    override fun echoInt(v: Int?): Int? = v
+    override fun echoFloat(v: Float?): Float? = v
+    override fun echoString(v: String?): String? = v
+    override fun echoMap(v: Map<String, Long?>?): Map<String, Long?>? = v
+}

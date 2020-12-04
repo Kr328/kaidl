@@ -1,11 +1,11 @@
 package com.github.kr328.kaidl.test
 
-import android.os.Bundle
 import android.util.SparseBooleanArray
+import java.util.*
 import kotlin.random.Random
 
 fun Random.nextString(): String {
-    return List(nextInt(64)) { nextInt(100) }.joinToString()
+    return Base64.getEncoder().encodeToString(nextBytes(16))
 }
 
 fun Random.nextCharArray(size: Int): CharArray {

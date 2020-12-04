@@ -2,15 +2,10 @@ package com.github.kr328.kaidl.test
 
 import android.os.Binder
 import android.os.Bundle
-import android.os.IInterface
-import android.os.Parcel
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 import java.util.*
 import kotlin.random.Random
 
@@ -21,7 +16,7 @@ import kotlin.random.Random
  */
 @RunWith(AndroidJUnit4::class)
 class BinderTest {
-    private fun <T>assertEchoEquals(value: T, func: (T) -> T) {
+    private fun <T> assertEchoEquals(value: T, func: (T) -> T) {
         val echo = func(value)
 
         assert(Objects.deepEquals(value, echo)) {
@@ -68,7 +63,7 @@ class BinderTest {
 
         val descriptor = random.nextString()
 
-        val stubBinder = object: Binder() {
+        val stubBinder = object : Binder() {
             override fun getInterfaceDescriptor(): String {
                 return descriptor
             }
@@ -77,5 +72,31 @@ class BinderTest {
         assertEquals(descriptor, proxy.echoIBinder(stubBinder).interfaceDescriptor)
     }
 
+    @Test
+    fun parcelContainers() {
+        val impl = ContainerImpl().wrap()
+        val loopback = LoopbackIBinder(impl)
+        val proxy = loopback.unwrap(ContainerInterface::class)
+        val random = Random(System.currentTimeMillis())
 
+        assertEchoEquals(List(32) { random.nextInt() }, proxy::echoIntList)
+        assertEchoEquals(List(32) { random.nextDouble() }, proxy::echoDoubleList)
+        assertEchoEquals(List(32) { random.nextString() to random.nextLong() }.toMap(), proxy::echoStringLongMap)
+        assertEchoEquals(List(32) { List(8) { random.nextLong() }.toSet() }, proxy::echoLongSetList)
+    }
+
+    @Test
+    fun parcelNullable() {
+        val impl = NullableImpl().wrap()
+        val loopback = LoopbackIBinder(impl)
+        val proxy = loopback.unwrap(NullableInterface::class)
+        val random = Random(System.currentTimeMillis())
+
+        assertEchoEquals(random.nextInt(), proxy::echoInt)
+        assertEchoEquals(null, proxy::echoInt)
+        assertEchoEquals(random.nextFloat(), proxy::echoFloat)
+        assertEchoEquals(null, proxy::echoFloat)
+        assertEchoEquals(random.nextString(), proxy::echoString)
+        assertEchoEquals(null, proxy::echoString)
+    }
 }

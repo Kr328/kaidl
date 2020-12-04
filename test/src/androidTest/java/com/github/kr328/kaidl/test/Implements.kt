@@ -42,4 +42,7 @@ class ComplexTypesImpl : ComplexTypeInterface {
     override fun echoParcelable(p: ExampleParcelable) = p
     override fun echoParcelableNullable(p: ExampleParcelable?) = p
     override fun echoParcelableList(l: List<ExampleParcelable>) = l
+    override fun echoBasicInterface(b: BasicTypeInterface) = b
+    override fun echoBasicInterfaceNullable(b: BasicTypeInterface?) = b
+    override fun echoBasicInterfaceList(l: List<BasicTypeInterface>) = l
 }

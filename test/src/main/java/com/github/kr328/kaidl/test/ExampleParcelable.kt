@@ -3,13 +3,12 @@ package com.github.kr328.kaidl.test
 import android.os.Parcel
 import android.os.Parcelable
 
-data class ExampleParcelable(val int: Int, val long: Long, val string: String): Parcelable {
+data class ExampleParcelable(val int: Int, val long: Long, val string: String) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
         parcel.readLong(),
         parcel.readString()!!
-    ) {
-    }
+    )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(int)

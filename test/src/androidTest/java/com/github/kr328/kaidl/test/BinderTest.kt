@@ -114,9 +114,16 @@ class BinderTest {
         val proxy = loopback.unwrap(ComplexTypeInterface::class)
         val random = Random(System.currentTimeMillis())
 
+        val basic = BasicTypeImpl()
+
         assertEchoEquals(random.nextParcelable(), proxy::echoParcelable)
         assertEchoEquals(random.nextParcelable(), proxy::echoParcelableNullable)
         assertEchoEquals(null, proxy::echoParcelableNullable)
         assertEchoEquals(List(10) { random.nextParcelable() }, proxy::echoParcelableList)
+
+        assertEchoEquals(random.nextInt()) { proxy.echoBasicInterface(basic).echoInt(it) }
+        assertEchoEquals(random.nextInt()) { proxy.echoBasicInterfaceNullable(basic)?.echoInt(it) ?: 0 }
+        assertEchoEquals<Int?>(null) { proxy.echoBasicInterfaceNullable(null)?.echoInt(10) }
+        assertEchoEquals(List(10) { random.nextInt() }) { l -> l.map { proxy.echoBasicInterface(basic).echoInt(it) } }
     }
 }

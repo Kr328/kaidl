@@ -98,5 +98,12 @@ class BinderTest {
         assertEchoEquals(null, proxy::echoFloat)
         assertEchoEquals(random.nextString(), proxy::echoString)
         assertEchoEquals(null, proxy::echoString)
+
+        val m = List(10) {
+            it.toString() to random.nextLong().takeIf { random.nextBoolean() }
+        }.toMap()
+
+        assertEchoEquals(m, proxy::echoMap)
+        assertEchoEquals(null, proxy::echoMap)
     }
 }

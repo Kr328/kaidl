@@ -33,12 +33,13 @@ fun KSDeclaration.toClassName(): ClassName {
 }
 
 fun KSType.resolveTypeName(): TypeName {
-    val c = declaration.toClassName().copy(nullable = isMarkedNullable) as ClassName
+    val c = declaration.toClassName()
 
-    if (declaration.typeParameters.isNotEmpty())
-        return c.parameterizedBy(arguments.mapNotNull { it.type?.resolve()?.resolveTypeName() })
-
-    return c
+    return if (declaration.typeParameters.isNotEmpty()) {
+        c.parameterizedBy(arguments.mapNotNull { it.type?.resolve()?.resolveTypeName() })
+    } else {
+        c
+    }.copy(nullable = isMarkedNullable)
 }
 
 fun Modifier.toKModifier(): KModifier? {

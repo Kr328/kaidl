@@ -46,3 +46,12 @@ class ComplexTypesImpl : ComplexTypeInterface {
     override fun echoBasicInterfaceNullable(b: BasicTypeInterface?) = b
     override fun echoBasicInterfaceList(l: List<BasicTypeInterface>) = l
 }
+
+class SuspendImpl : SuspendInterface {
+    override suspend fun echoInt(v: Int) = v
+    override suspend fun echoIntList(v: List<Int>) = v
+
+    override suspend fun throwException(msg: String) {
+        throw Exception(msg)
+    }
+}

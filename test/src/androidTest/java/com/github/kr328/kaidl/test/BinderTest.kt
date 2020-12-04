@@ -3,6 +3,7 @@ package com.github.kr328.kaidl.test
 import android.os.Binder
 import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,6 +18,14 @@ import kotlin.random.Random
 @RunWith(AndroidJUnit4::class)
 class BinderTest {
     private fun <T> assertEchoEquals(value: T, func: (T) -> T) {
+        val echo = func(value)
+
+        assert(Objects.deepEquals(value, echo)) {
+            "${Objects.toString(value)} != ${Objects.toString(echo)}"
+        }
+    }
+
+    private suspend fun <T> assertEchoEqualsSuspend(value: T, func: suspend (T) -> T) {
         val echo = func(value)
 
         assert(Objects.deepEquals(value, echo)) {
@@ -125,5 +134,26 @@ class BinderTest {
         assertEchoEquals(random.nextInt()) { proxy.echoBasicInterfaceNullable(basic)?.echoInt(it) ?: 0 }
         assertEchoEquals<Int?>(null) { proxy.echoBasicInterfaceNullable(null)?.echoInt(10) }
         assertEchoEquals(List(10) { random.nextInt() }) { l -> l.map { proxy.echoBasicInterface(basic).echoInt(it) } }
+    }
+
+    @Test
+    fun suspendInterface() {
+        runBlocking {
+            val impl = SuspendImpl().wrap()
+            val loopback = LoopbackIBinder(impl)
+            val proxy = loopback.unwrap(SuspendInterface::class)
+            val random = Random(System.currentTimeMillis())
+
+            assertEchoEqualsSuspend(random.nextInt(), proxy::echoInt)
+            assertEchoEqualsSuspend(List(10) { random.nextInt() }, proxy::echoIntList)
+
+            val msg = random.nextString()
+
+            try {
+                proxy.throwException(msg)
+            } catch (e: Exception) {
+                assertEquals(msg, e.message)
+            }
+        }
     }
 }

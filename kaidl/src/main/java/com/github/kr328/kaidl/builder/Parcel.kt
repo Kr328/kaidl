@@ -116,17 +116,17 @@ fun CodeBlock.Builder.addReadFromParcel(
                         "%N.readStrongBinder()!!.%M(%T::class)",
                         parcelName,
                         MemberName(type.packageName, "unwrap"),
-                        type
+                        type.copy(nullable = false)
                     )
                 ParcelableType.AidlInterface -> {
                     addStatement(
                         "%T.asInterface(%N.readStrongBinder()!!)",
-                        ClassName(type.packageName, type.simpleName).nestedClass("Stub"),
+                        (type.copy(nullable = false) as ClassName).nestedClass("Stub"),
                         parcelName
                     )
                 }
                 ParcelableType.Parcelable -> {
-                    addStatement("%T.CREATOR.createFromParcel(%N)!!", type, parcelName)
+                    addStatement("%T.CREATOR.createFromParcel(%N)!!", type.copy(nullable = false), parcelName)
                 }
             }
         }
@@ -239,7 +239,7 @@ fun CodeBlock.Builder.addWriteToParcel(
                     addStatement("%N.writeStrongBinder(%N.asBinder())", parcelName, valName)
                 }
                 ParcelableType.Parcelable -> {
-                    addStatement("%N.writeToParcel(%N)", valName, parcelName)
+                    addStatement("%N.writeToParcel(%N, 0)", valName, parcelName)
                 }
             }
         }

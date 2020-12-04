@@ -55,6 +55,7 @@ suspend fun IBinder.suspendTransact(code: Int, data: Parcel, reply: Parcel): Boo
             val completable = object : CompletableBinder() {
                 override fun onComplete(data: Parcel) {
                     reply.appendFrom(data, 0, data.dataAvail())
+                    reply.setDataPosition(0)
 
                     it.resumeWith(Result.success(true))
                 }
@@ -126,10 +127,12 @@ fun suspendTransaction(
 
         try {
             block(r)
+
+            completable.transact(CompletableBinder.TRANSACTION_complete, r, null, IBinder.FLAG_ONEWAY)
         } catch (e: Exception) {
             withContext(NonCancellable) {
                 if (e is CancellationException) {
-                    completable.transact(CompletableBinder.TRANSACTION_canceled, r, null, 0)
+                    completable.transact(CompletableBinder.TRANSACTION_canceled, r, null, IBinder.FLAG_ONEWAY)
                 } else {
                     r.setDataPosition(0)
 
@@ -137,7 +140,7 @@ fun suspendTransaction(
                         stackTrace = e.stackTrace
                     })
 
-                    completable.transact(CompletableBinder.TRANSACTION_complete, r, null, 0)
+                    completable.transact(CompletableBinder.TRANSACTION_complete, r, null, IBinder.FLAG_ONEWAY)
                 }
             }
 

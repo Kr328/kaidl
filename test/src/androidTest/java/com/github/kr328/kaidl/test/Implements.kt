@@ -37,3 +37,9 @@ class NullableImpl : NullableInterface {
     override fun echoString(v: String?): String? = v
     override fun echoMap(v: Map<String, Long?>?): Map<String, Long?>? = v
 }
+
+class ComplexTypesImpl : ComplexTypeInterface {
+    override fun echoParcelable(p: ExampleParcelable) = p
+    override fun echoParcelableNullable(p: ExampleParcelable?) = p
+    override fun echoParcelableList(l: List<ExampleParcelable>) = l
+}

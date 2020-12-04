@@ -106,4 +106,17 @@ class BinderTest {
         assertEchoEquals(m, proxy::echoMap)
         assertEchoEquals(null, proxy::echoMap)
     }
+
+    @Test
+    fun parcelComplexTypes() {
+        val impl = ComplexTypesImpl().wrap()
+        val loopback = LoopbackIBinder(impl)
+        val proxy = loopback.unwrap(ComplexTypeInterface::class)
+        val random = Random(System.currentTimeMillis())
+
+        assertEchoEquals(random.nextParcelable(), proxy::echoParcelable)
+        assertEchoEquals(random.nextParcelable(), proxy::echoParcelableNullable)
+        assertEchoEquals(null, proxy::echoParcelableNullable)
+        assertEchoEquals(List(10) { random.nextParcelable() }, proxy::echoParcelableList)
+    }
 }

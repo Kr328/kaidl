@@ -39,3 +39,7 @@ fun Random.nextSparseBooleanArray(size: Int): SparseBooleanArray {
         }
     }
 }
+
+fun Random.nextParcelable(): ExampleParcelable {
+    return ExampleParcelable(nextInt(), nextLong(), nextString())
+}

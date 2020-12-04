@@ -11,18 +11,18 @@ val descriptorProperty: PropertySpec
 
 fun TypeSpec.Builder.addTransactProperty(funSpec: FunSpec, code: Int): TypeSpec.Builder {
     return addProperty(
-            funSpec.transactionProperty.toBuilder()
-                    .addAnnotation(JvmStatic::class)
-                    .initializer("%T.FIRST_CALL_TRANSACTION + %L", IBINDER, code)
-                    .build()
+        funSpec.transactionProperty.toBuilder()
+            .addAnnotation(JvmStatic::class)
+            .initializer("%T.FIRST_CALL_TRANSACTION + %L", IBINDER, code)
+            .build()
     )
 }
 
 fun TypeSpec.Builder.addDescriptor(forClass: ClassName): TypeSpec.Builder {
     return addProperty(
-            descriptorProperty.toBuilder()
-                    .addAnnotation(JvmStatic::class)
-                    .initializer("%S", forClass.canonicalName)
-                    .build()
+        descriptorProperty.toBuilder()
+            .addAnnotation(JvmStatic::class)
+            .initializer("%S", forClass.canonicalName)
+            .build()
     )
 }

@@ -6,8 +6,8 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 fun CodeBlock.Builder.addReadFromParcel(
-        type: TypeName,
-        parcelName: String
+    type: TypeName,
+    parcelName: String
 ): CodeBlock.Builder {
     if (type.isNullable) {
         beginControlFlow("if (%N.readInt() != 0)", parcelName)
@@ -47,9 +47,9 @@ fun CodeBlock.Builder.addReadFromParcel(
             type as ParameterizedTypeName
 
             beginControlFlow(
-                    "%T(%N.readInt())",
-                    type,
-                    parcelName
+                "%T(%N.readInt())",
+                type,
+                parcelName
             )
 
             addReadFromParcel(type.typeArguments[0], parcelName)
@@ -60,9 +60,9 @@ fun CodeBlock.Builder.addReadFromParcel(
             type as ParameterizedTypeName
 
             beginControlFlow(
-                    "%T(%N.readInt())",
-                    type,
-                    parcelName
+                "%T(%N.readInt())",
+                type,
+                parcelName
             )
 
             addReadFromParcel(type.typeArguments[0], parcelName)
@@ -73,9 +73,9 @@ fun CodeBlock.Builder.addReadFromParcel(
             type as ParameterizedTypeName
 
             beginControlFlow(
-                    "%T(%N.readInt())",
-                    LIST.parameterizedBy(type.typeArguments[0]),
-                    parcelName
+                "%T(%N.readInt())",
+                LIST.parameterizedBy(type.typeArguments[0]),
+                parcelName
             )
 
             addReadFromParcel(type.typeArguments[0], parcelName)
@@ -88,12 +88,20 @@ fun CodeBlock.Builder.addReadFromParcel(
             type as ParameterizedTypeName
 
             beginControlFlow(
-                    "%T(%N.readInt())",
-                    LIST.parameterizedBy(PAIR.parameterizedBy(type.typeArguments[0], type.typeArguments[1])),
-                    parcelName
+                "%T(%N.readInt())",
+                LIST.parameterizedBy(
+                    PAIR.parameterizedBy(
+                        type.typeArguments[0],
+                        type.typeArguments[1]
+                    )
+                ),
+                parcelName
             )
 
-            addReadFromParcel(PAIR.parameterizedBy(type.typeArguments[0], type.typeArguments[1]), parcelName)
+            addReadFromParcel(
+                PAIR.parameterizedBy(type.typeArguments[0], type.typeArguments[1]),
+                parcelName
+            )
 
             endControlFlow()
 
@@ -105,16 +113,16 @@ fun CodeBlock.Builder.addReadFromParcel(
             when (type.parcelableType) {
                 ParcelableType.BinderInterface ->
                     addStatement(
-                            "%N.readStrongBinder()!!.%M(%T::class)",
-                            parcelName,
-                            MemberName(type.packageName, "unwrap"),
-                            type
+                        "%N.readStrongBinder()!!.%M(%T::class)",
+                        parcelName,
+                        MemberName(type.packageName, "unwrap"),
+                        type
                     )
                 ParcelableType.AidlInterface -> {
                     addStatement(
-                            "%T.asInterface(%N.readStrongBinder()!!)",
-                            ClassName(type.packageName, type.simpleName).nestedClass("Stub"),
-                            parcelName
+                        "%T.asInterface(%N.readStrongBinder()!!)",
+                        ClassName(type.packageName, type.simpleName).nestedClass("Stub"),
+                        parcelName
                     )
                 }
                 ParcelableType.Parcelable -> {
@@ -136,17 +144,17 @@ fun CodeBlock.Builder.addReadFromParcel(
 }
 
 fun CodeBlock.Builder.addReadFromParcel(
-        valName: String,
-        type: TypeName,
-        parcelName: String,
+    valName: String,
+    type: TypeName,
+    parcelName: String,
 ): CodeBlock.Builder {
     return add("val %N: %T = ", valName, type).addReadFromParcel(type, parcelName)
 }
 
 fun CodeBlock.Builder.addWriteToParcel(
-        valName: String,
-        type: TypeName,
-        parcelName: String
+    valName: String,
+    type: TypeName,
+    parcelName: String
 ): CodeBlock.Builder {
     if (type.isNullable) {
         beginControlFlow("if (%N != null)", valName)
@@ -173,7 +181,11 @@ fun CodeBlock.Builder.addWriteToParcel(
         "kotlin.DoubleArray" -> addStatement("%N.writeDoubleArray(%N)", parcelName, valName)
         "android.os.IBinder" -> addStatement("%N.writeStrongBinder(%N)", parcelName, valName)
         "android.os.Bundle" -> addStatement("%N.writeBundle(%N)", parcelName, valName)
-        "android.util.SparseBooleanArray" -> addStatement("%N.writeSparseBooleanArray(%N)", parcelName, valName)
+        "android.util.SparseBooleanArray" -> addStatement(
+            "%N.writeSparseBooleanArray(%N)",
+            parcelName,
+            valName
+        )
 
         // collections
         "kotlin.Pair" -> {
@@ -201,17 +213,26 @@ fun CodeBlock.Builder.addWriteToParcel(
 
             addStatement("val list = %N.%M()", valName, MemberName("kotlin.collections", "toList"))
 
-            addWriteToParcel("list", LIST.parameterizedBy(PAIR.parameterizedBy(type.typeArguments[0], type.typeArguments[1])), parcelName)
+            addWriteToParcel(
+                "list",
+                LIST.parameterizedBy(
+                    PAIR.parameterizedBy(
+                        type.typeArguments[0],
+                        type.typeArguments[1]
+                    )
+                ),
+                parcelName
+            )
         }
 
         else -> {
             when (type.parcelableType) {
                 ParcelableType.BinderInterface -> {
                     addStatement(
-                            "%N.writeStrongBinder(%N.%M())",
-                            parcelName,
-                            valName,
-                            MemberName(type.packageName, "wrap")
+                        "%N.writeStrongBinder(%N.%M())",
+                        parcelName,
+                        valName,
+                        MemberName(type.packageName, "wrap")
                     )
                 }
                 ParcelableType.AidlInterface -> {

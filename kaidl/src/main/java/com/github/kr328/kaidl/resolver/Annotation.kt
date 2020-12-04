@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.ClassName
 
 fun KSDeclaration.getAnnotationByName(name: ClassName): KSAnnotation? {
     return annotations
-            .firstOrNull { it.annotationType.resolve().declaration.qualifiedName!!.asString() == name.canonicalName }
+        .firstOrNull { it.annotationType.resolve().declaration.qualifiedName!!.asString() == name.canonicalName }
 }
 
 inline fun <reified T> KSAnnotation.getValue(key: String?): T? {

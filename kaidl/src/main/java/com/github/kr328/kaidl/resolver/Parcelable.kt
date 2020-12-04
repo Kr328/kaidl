@@ -12,7 +12,7 @@ val TypeName.parcelableType: ParcelableType
         return parcelableTypeCache.getOrPut(this.canonicalName) {
             loadResolver().run {
                 val clazz = getClassDeclarationByName(getKSNameFromString(canonicalName))
-                        ?: throw ClassNotFoundException("$canonicalName not found")
+                    ?: throw ClassNotFoundException("$canonicalName not found")
 
                 when (clazz.qualifiedName!!.asString()) {
                     else -> when {

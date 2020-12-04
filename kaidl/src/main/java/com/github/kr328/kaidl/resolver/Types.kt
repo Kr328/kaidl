@@ -17,7 +17,7 @@ enum class ParcelableType {
 fun KSClassDeclaration.resolveParents(): List<KSClassDeclaration> {
     val parent = parentDeclaration
 
-    return if ( parent != null && parent is KSClassDeclaration ) {
+    return if (parent != null && parent is KSClassDeclaration) {
         parent.resolveParents() + parent
     } else {
         emptyList()
@@ -27,7 +27,9 @@ fun KSClassDeclaration.resolveParents(): List<KSClassDeclaration> {
 fun KSDeclaration.toClassName(): ClassName {
     require(this is KSClassDeclaration) { throw IllegalArgumentException() }
 
-    return ClassName(packageName.asString(), resolveParents().map { it.simpleName.asString() } + simpleName.asString())
+    return ClassName(
+        packageName.asString(),
+        resolveParents().map { it.simpleName.asString() } + simpleName.asString())
 }
 
 fun KSType.resolveTypeName(): TypeName {

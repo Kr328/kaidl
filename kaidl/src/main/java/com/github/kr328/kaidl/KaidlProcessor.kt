@@ -9,6 +9,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 
 class KaidlProcessor : SymbolProcessor {
@@ -19,10 +20,10 @@ class KaidlProcessor : SymbolProcessor {
     }
 
     override fun init(
-            options: Map<String, String>,
-            kotlinVersion: KotlinVersion,
-            codeGenerator: CodeGenerator,
-            logger: KSPLogger
+        options: Map<String, String>,
+        kotlinVersion: KotlinVersion,
+        codeGenerator: CodeGenerator,
+        logger: KSPLogger
     ) {
         this.codeGenerator = codeGenerator
     }
@@ -47,13 +48,14 @@ class KaidlProcessor : SymbolProcessor {
 
         codeGenerator.createNewFile(className.packageName, className.simpleName).writer().use {
             FileSpec.builder(className.packageName, "")
-                    .addComment("Generated for $className")
-                    .addStub(className, functions)
-                    .addProxyClass(className, functions)
-                    .addWrap(className)
-                    .addUnwrap(className)
-                    .build()
-                    .writeTo(it)
+                .addComment("Generated for $className")
+                .addAnnotation(AnnotationSpec.builder(Suppress::class).addMember("%S, %S", "UNUSED", "NAME_SHADOWING").build())
+                .addStub(className, functions)
+                .addProxyClass(className, functions)
+                .addWrap(className)
+                .addUnwrap(className)
+                .build()
+                .writeTo(it)
         }
     }
 }

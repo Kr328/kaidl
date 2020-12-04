@@ -1,6 +1,5 @@
 package com.github.kr328.kaidl.resolver
 
-import com.github.kr328.kaidl.CODE
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.Modifier

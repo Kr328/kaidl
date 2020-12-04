@@ -1,6 +1,5 @@
 package com.github.kr328.kaidl.builder
 
-import com.github.kr328.kaidl.PAIR
 import com.github.kr328.kaidl.resolver.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy

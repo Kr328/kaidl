@@ -1,6 +1,6 @@
 package com.github.kr328.kaidl.builder
 
-import com.github.kr328.kaidl.IBINDER
+import com.github.kr328.kaidl.resolver.IBINDER
 import com.squareup.kotlinpoet.*
 
 val FunSpec.transactionProperty: PropertySpec

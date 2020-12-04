@@ -1,4 +1,4 @@
-package com.github.kr328.kaidl
+package com.github.kr328.kaidl.resolver
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName

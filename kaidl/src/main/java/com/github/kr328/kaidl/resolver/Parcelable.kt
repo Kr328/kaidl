@@ -1,8 +1,5 @@
 package com.github.kr328.kaidl.resolver
 
-import com.github.kr328.kaidl.IINTERFACE
-import com.github.kr328.kaidl.INTERFACE
-import com.github.kr328.kaidl.PARCELABLE
 import com.squareup.kotlinpoet.TypeName
 
 private val parcelableTypeCache: MutableMap<String, ParcelableType> = mutableMapOf()

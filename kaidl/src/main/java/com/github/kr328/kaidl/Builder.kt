@@ -11,7 +11,7 @@ fun FileSpec.Builder.addStub(forClass: ClassName, functions: List<FunSpec>): Fil
         TypeSpec.classBuilder(ClassName(forClass.packageName, forClass.simpleName + "Delegate"))
             .primaryConstructor(FunSpec.constructorBuilder().addParameter("impl", forClass).build())
             .addModifiers(KModifier.OPEN)
-            .superclass(BINDER)
+            .superclass(com.github.kr328.kaidl.resolver.BINDER)
             .addSuperinterface(forClass, "impl")
             .addCompanion(forClass, functions)
             .addGetDescriptor()
@@ -22,7 +22,7 @@ fun FileSpec.Builder.addStub(forClass: ClassName, functions: List<FunSpec>): Fil
 
 fun FileSpec.Builder.addWrap(forClass: ClassName): FileSpec.Builder {
     val code = CodeBlock.builder()
-        .beginControlFlow("if (this is %T)", IBINDER)
+        .beginControlFlow("if (this is %T)", com.github.kr328.kaidl.resolver.IBINDER)
         .addStatement("return this")
         .nextControlFlow("else")
         .addStatement("return %T(this)", forClass.delegate)
@@ -31,7 +31,7 @@ fun FileSpec.Builder.addWrap(forClass: ClassName): FileSpec.Builder {
     return addFunction(
         FunSpec.builder("wrap")
             .receiver(forClass)
-            .returns(IBINDER)
+            .returns(com.github.kr328.kaidl.resolver.IBINDER)
             .addCode(code.build())
             .build()
     )
@@ -43,8 +43,8 @@ fun FileSpec.Builder.addProxyClass(
 ): FileSpec.Builder {
     val clazz = TypeSpec.classBuilder(forClass.proxy)
         .addSuperinterface(forClass)
-        .primaryConstructor(FunSpec.constructorBuilder().addParameter("remote", IBINDER).build())
-        .addProperty(PropertySpec.builder("remote", IBINDER).initializer("remote").build())
+        .primaryConstructor(FunSpec.constructorBuilder().addParameter("remote", com.github.kr328.kaidl.resolver.IBINDER).build())
+        .addProperty(PropertySpec.builder("remote", com.github.kr328.kaidl.resolver.IBINDER).initializer("remote").build())
 
     for (f in functions)
         clazz.addProxy(forClass, f)
@@ -66,7 +66,7 @@ fun FileSpec.Builder.addUnwrap(forClass: ClassName): FileSpec.Builder {
                 "c",
                 KClass::class.asClassName().parameterizedBy(forClass)
             )
-            .receiver(IBINDER)
+            .receiver(com.github.kr328.kaidl.resolver.IBINDER)
             .returns(forClass)
             .addCode(code.build())
             .build()
@@ -119,7 +119,7 @@ fun TypeSpec.Builder.addOnTransact(
             if (f.modifiers.contains(KModifier.SUSPEND)) {
                 beginControlFlow(
                     "%M(data, reply)",
-                    MemberName(INTERFACE.packageName, "suspendTransaction")
+                    MemberName(com.github.kr328.kaidl.resolver.INTERFACE.packageName, "suspendTransaction")
                 )
 
                 addStatement("reply -> ")
@@ -155,8 +155,8 @@ fun TypeSpec.Builder.addOnTransact(
     val func = FunSpec.builder("onTransact")
         .addModifiers(KModifier.OVERRIDE)
         .addParameter(ParameterSpec("code", INT))
-        .addParameter(ParameterSpec("data", PARCEL))
-        .addParameter(ParameterSpec("reply", PARCEL.copy(nullable = true)))
+        .addParameter(ParameterSpec("data", com.github.kr328.kaidl.resolver.PARCEL))
+        .addParameter(ParameterSpec("reply", com.github.kr328.kaidl.resolver.PARCEL.copy(nullable = true)))
         .addParameter(ParameterSpec("flags", INT))
         .returns(BOOLEAN)
         .addCode(code.build())
@@ -186,7 +186,7 @@ fun TypeSpec.Builder.addProxy(forClass: ClassName, function: FunSpec): TypeSpec.
         if (function.modifiers.contains(KModifier.SUSPEND)) {
             addStatement(
                 "remote.%M(%T.%N, `data`, reply)",
-                MemberName(INTERFACE.packageName, "suspendTransact"),
+                MemberName(com.github.kr328.kaidl.resolver.INTERFACE.packageName, "suspendTransact"),
                 forClass.delegate,
                 function.transactionProperty.name
             )

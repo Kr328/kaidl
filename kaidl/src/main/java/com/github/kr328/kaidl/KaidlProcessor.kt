@@ -30,7 +30,7 @@ class KaidlProcessor : SymbolProcessor {
 
     override fun process(resolver: Resolver) {
         resolver.store {
-            resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
+            resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
                 .filterIsInstance<KSClassDeclaration>()
                 .forEach {
                     require(it.classKind == ClassKind.INTERFACE) {

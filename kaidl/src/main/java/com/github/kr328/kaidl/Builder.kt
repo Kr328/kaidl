@@ -113,6 +113,12 @@ fun TypeSpec.Builder.addOnTransact(
                 addReadFromParcel(p.name, p.type, "data")
             }
 
+            if (f.modifiers.contains(KModifier.SUSPEND)) {
+                beginControlFlow("%M(data, reply)", MemberName(INTERFACE.packageName, "suspendTransaction"))
+
+                addStatement("reply -> ")
+            }
+
             val args = f.parameters.joinToString(", ") { it.name }
 
             addStatement("val %N: %T = %N($args)", "_result", f.returnType ?: UNIT, f.name)
@@ -120,6 +126,10 @@ fun TypeSpec.Builder.addOnTransact(
             addStatement("reply.writeNoException()")
 
             addWriteToParcel("_result", f.returnType ?: UNIT, "reply")
+
+            if (f.modifiers.contains(KModifier.SUSPEND)) {
+                endControlFlow()
+            }
 
             endControlFlow() // code ->
         }
@@ -167,11 +177,20 @@ fun TypeSpec.Builder.addProxy(forClass: ClassName, function: FunSpec): TypeSpec.
             addWriteToParcel(p.name, p.type, "data")
         }
 
-        addStatement(
+        if (function.modifiers.contains(KModifier.SUSPEND)) {
+            addStatement(
+                "remote.%M(%T.%N, `data`, reply)",
+                MemberName(INTERFACE.packageName, "suspendTransact"),
+                forClass.delegate,
+                function.transactionProperty.name
+            )
+        } else {
+            addStatement(
                 "remote.transact(%T.%N, `data`, reply, 0)",
                 forClass.delegate,
                 function.transactionProperty.name
-        )
+            )
+        }
 
         addStatement("reply.readException()")
 

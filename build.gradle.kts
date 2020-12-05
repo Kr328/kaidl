@@ -1,6 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     rootProject.extra.let {
+        it["gGroupId"] = "com.github.kr328.kaidl"
+
         it["gKotlinVersion"] = "1.4.10"
 
         it["gCompileSdkVersion"] = 30

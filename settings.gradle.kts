@@ -9,7 +9,7 @@ pluginManagement {
         eachPlugin {
             when(requested.id.id) {
                 "symbol-processing" -> {
-                    useModule("com.google.devtools.ksp:symbol-processing:1.4.10-dev-experimental-20201120")
+                    useModule("com.google.devtools.ksp:symbol-processing:1.4.20-dev-experimental-20201204")
                 }
             }
         }

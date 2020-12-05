@@ -3,17 +3,17 @@ buildscript {
     rootProject.extra.let {
         it["gGroupId"] = "com.github.kr328.kaidl"
 
-        it["gKotlinVersion"] = "1.4.10"
+        it["gKotlinVersion"] = "1.4.20"
 
         it["gCompileSdkVersion"] = 30
         it["gTargetSdkVersion"] = 30
         it["gMinSdkVersion"] = 21
 
-        it["gVersionCode"] = 1
-        it["gVersionName"] = "1.0"
+        it["gVersionCode"] = 101
+        it["gVersionName"] = "1.1"
 
         it["gKotlinCoroutineVersion"] = "1.4.2"
-        it["gKotlinSymbolVersion"] = "1.4.10-dev-experimental-20201120"
+        it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20201204"
         it["gJunitVersion"] = "4.13.1"
         it["gAndroidXJunitVersion"] = "1.1.2"
         it["gAndroidXEspressoVersion"] = "3.3.0"

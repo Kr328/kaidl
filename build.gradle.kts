@@ -9,8 +9,8 @@ buildscript {
         it["gTargetSdkVersion"] = 30
         it["gMinSdkVersion"] = 21
 
-        it["gVersionCode"] = 101
-        it["gVersionName"] = "1.1"
+        it["gVersionCode"] = 102
+        it["gVersionName"] = "1.2"
 
         it["gKotlinCoroutineVersion"] = "1.4.2"
         it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20201204"
@@ -27,7 +27,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:4.2.0-beta01")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha02")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$gKotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong

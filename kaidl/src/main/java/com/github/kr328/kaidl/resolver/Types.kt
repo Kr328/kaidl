@@ -11,7 +11,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 
 enum class ParcelableType {
-    BinderInterface, AidlInterface, Parcelable
+    BinderInterface, AidlInterface, Parcelable, Serializable
 }
 
 fun KSClassDeclaration.resolveParents(): List<KSClassDeclaration> {

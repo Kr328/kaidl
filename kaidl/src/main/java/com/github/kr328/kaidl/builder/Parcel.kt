@@ -127,6 +127,9 @@ fun CodeBlock.Builder.addReadFromParcel(
                 ParcelableType.Parcelable -> {
                     addStatement("%T.CREATOR.createFromParcel(%N)!!", type.copy(nullable = false), parcelName)
                 }
+                ParcelableType.Serializable -> {
+                    addStatement("%N.readSerializable() as %T", parcelName, type.copy(nullable = false))
+                }
             }
         }
     }
@@ -239,6 +242,9 @@ fun CodeBlock.Builder.addWriteToParcel(
                 }
                 ParcelableType.Parcelable -> {
                     addStatement("%N.writeToParcel(%N, 0)", valName, parcelName)
+                }
+                ParcelableType.Serializable -> {
+                    addStatement("%N.writeSerializable(%N)", parcelName, valName)
                 }
             }
         }

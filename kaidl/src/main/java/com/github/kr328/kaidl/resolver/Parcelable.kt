@@ -19,6 +19,8 @@ val TypeName.parcelableType: ParcelableType
                             ParcelableType.AidlInterface
                         clazz.getSuperByName(PARCELABLE) != null ->
                             ParcelableType.Parcelable
+                        clazz.getSuperByName(SERIALIZABLE) != null ->
+                            ParcelableType.Serializable
                         else ->
                             throw IllegalArgumentException("unsupported type $canonicalName")
                     }

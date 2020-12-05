@@ -134,6 +134,7 @@ class BinderTest {
         assertEchoEquals(random.nextInt()) { proxy.echoBasicInterfaceNullable(basic)?.echoInt(it) ?: 0 }
         assertEchoEquals<Int?>(null) { proxy.echoBasicInterfaceNullable(null)?.echoInt(10) }
         assertEchoEquals(List(10) { random.nextInt() }) { l -> l.map { proxy.echoBasicInterface(basic).echoInt(it) } }
+        assertEchoEquals(UUID.randomUUID(), proxy::echoUUID)
     }
 
     @Test

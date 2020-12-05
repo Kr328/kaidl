@@ -1,6 +1,7 @@
 package com.github.kr328.kaidl.test
 
 import com.github.kr328.kaidl.BinderInterface
+import java.util.*
 
 @BinderInterface
 interface ComplexTypeInterface {
@@ -10,4 +11,5 @@ interface ComplexTypeInterface {
     fun echoBasicInterface(b: BasicTypeInterface): BasicTypeInterface
     fun echoBasicInterfaceNullable(b: BasicTypeInterface?): BasicTypeInterface?
     fun echoBasicInterfaceList(l: List<BasicTypeInterface>): List<BasicTypeInterface>
+    fun echoUUID(v: UUID): UUID
 }

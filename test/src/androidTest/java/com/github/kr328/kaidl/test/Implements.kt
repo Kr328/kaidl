@@ -3,6 +3,7 @@ package com.github.kr328.kaidl.test
 import android.os.Bundle
 import android.os.IBinder
 import android.util.SparseBooleanArray
+import java.util.*
 
 class BasicTypeImpl : BasicTypeInterface {
     override fun echoInt(v: Int) = v
@@ -45,6 +46,7 @@ class ComplexTypesImpl : ComplexTypeInterface {
     override fun echoBasicInterface(b: BasicTypeInterface) = b
     override fun echoBasicInterfaceNullable(b: BasicTypeInterface?) = b
     override fun echoBasicInterfaceList(l: List<BasicTypeInterface>) = l
+    override fun echoUUID(v: UUID): UUID = v
 }
 
 class SuspendImpl : SuspendInterface {

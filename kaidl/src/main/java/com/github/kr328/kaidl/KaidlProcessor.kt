@@ -3,12 +3,14 @@ package com.github.kr328.kaidl
 import com.github.kr328.kaidl.resolver.resolveFunctions
 import com.github.kr328.kaidl.resolver.store
 import com.github.kr328.kaidl.resolver.toClassName
+import com.github.kr328.kaidl.stub.writeSuspendTransactionFile
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 
@@ -30,15 +32,20 @@ class KaidlProcessor : SymbolProcessor {
 
     override fun process(resolver: Resolver) {
         resolver.store {
-            resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
+            val classes = resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
                 .filterIsInstance<KSClassDeclaration>()
-                .forEach {
-                    require(it.classKind == ClassKind.INTERFACE) {
-                        throw IllegalArgumentException("@BinderInterface support only interfaces")
-                    }
 
-                    generate(it)
+            classes.forEach {
+                require(it.classKind == ClassKind.INTERFACE) {
+                    throw IllegalArgumentException("@BinderInterface support only interfaces")
                 }
+
+                generate(it)
+            }
+
+            if ( classes.any { it.getAllFunctions().any { f -> f.modifiers.contains(Modifier.SUSPEND) } } ) {
+                codeGenerator.writeSuspendTransactionFile()
+            }
         }
     }
 

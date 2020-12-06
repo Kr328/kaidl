@@ -130,6 +130,9 @@ fun CodeBlock.Builder.addReadFromParcel(
                 ParcelableType.Serializable -> {
                     addStatement("%N.readSerializable() as %T", parcelName, type.copy(nullable = false))
                 }
+                ParcelableType.Enum -> {
+                    addStatement("%T.values()[%N.readInt()]", type.copy(nullable = false), parcelName)
+                }
             }
         }
     }
@@ -245,6 +248,9 @@ fun CodeBlock.Builder.addWriteToParcel(
                 }
                 ParcelableType.Serializable -> {
                     addStatement("%N.writeSerializable(%N)", parcelName, valName)
+                }
+                ParcelableType.Enum -> {
+                    addStatement("%N.writeInt(%N.ordinal)", parcelName, valName)
                 }
             }
         }

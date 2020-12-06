@@ -47,6 +47,7 @@ class ComplexTypesImpl : ComplexTypeInterface {
     override fun echoBasicInterfaceNullable(b: BasicTypeInterface?) = b
     override fun echoBasicInterfaceList(l: List<BasicTypeInterface>) = l
     override fun echoUUID(v: UUID): UUID = v
+    override fun echoEnum(v: ExampleEnum): ExampleEnum = v
 }
 
 class SuspendImpl : SuspendInterface {

@@ -12,4 +12,5 @@ interface ComplexTypeInterface {
     fun echoBasicInterfaceNullable(b: BasicTypeInterface?): BasicTypeInterface?
     fun echoBasicInterfaceList(l: List<BasicTypeInterface>): List<BasicTypeInterface>
     fun echoUUID(v: UUID): UUID
+    fun echoEnum(v: ExampleEnum): ExampleEnum
 }

@@ -22,10 +22,10 @@ class KaidlProcessor : SymbolProcessor {
     }
 
     override fun init(
-        options: Map<String, String>,
-        kotlinVersion: KotlinVersion,
-        codeGenerator: CodeGenerator,
-        logger: KSPLogger
+            options: Map<String, String>,
+            kotlinVersion: KotlinVersion,
+            codeGenerator: CodeGenerator,
+            logger: KSPLogger
     ) {
         this.codeGenerator = codeGenerator
     }
@@ -33,7 +33,7 @@ class KaidlProcessor : SymbolProcessor {
     override fun process(resolver: Resolver) {
         resolver.store {
             val classes = resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
-                .filterIsInstance<KSClassDeclaration>()
+                    .filterIsInstance<KSClassDeclaration>()
 
             classes.forEach {
                 require(it.classKind == ClassKind.INTERFACE) {
@@ -43,7 +43,7 @@ class KaidlProcessor : SymbolProcessor {
                 generate(it)
             }
 
-            if ( classes.any { it.getAllFunctions().any { f -> f.modifiers.contains(Modifier.SUSPEND) } } ) {
+            if (classes.any { it.getAllFunctions().any { f -> f.modifiers.contains(Modifier.SUSPEND) } }) {
                 codeGenerator.writeSuspendTransactionFile()
             }
         }
@@ -55,14 +55,25 @@ class KaidlProcessor : SymbolProcessor {
 
         codeGenerator.createNewFile(className.packageName, className.simpleName).writer().use {
             FileSpec.builder(className.packageName, "")
-                .addComment("Generated for $className")
-                .addAnnotation(AnnotationSpec.builder(Suppress::class).addMember("%S, %S", "UNUSED", "NAME_SHADOWING").build())
-                .addStub(className, functions)
-                .addProxyClass(className, functions)
-                .addWrap(className)
-                .addUnwrap(className)
-                .build()
-                .writeTo(it)
+                    .addComment("Generated for $className")
+                    .addAnnotation(AnnotationSpec.builder(Suppress::class)
+                            .addMember(DEFAULT_SUPPRESS.joinToString(", ") { s -> "\"$s\"" })
+                            .build())
+                    .addStub(className, functions)
+                    .addProxyClass(className, functions)
+                    .addWrap(className)
+                    .addUnwrap(className)
+                    .build()
+                    .writeTo(it)
         }
+    }
+
+    companion object {
+        private val DEFAULT_SUPPRESS = arrayOf(
+                "NAME_SHADOWING",
+                "UNUSED_VARIABLE",
+                "UNNECESSARY_NOT_NULL_ASSERTION",
+                "UNUSED_PARAMETER",
+        )
     }
 }

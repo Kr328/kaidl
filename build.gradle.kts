@@ -9,8 +9,8 @@ buildscript {
         it["gTargetSdkVersion"] = 30
         it["gMinSdkVersion"] = 21
 
-        it["gVersionCode"] = 103
-        it["gVersionName"] = "1.3"
+        it["gVersionCode"] = 104
+        it["gVersionName"] = "1.4"
 
         it["gKotlinCoroutineVersion"] = "1.4.2"
         it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20201204"

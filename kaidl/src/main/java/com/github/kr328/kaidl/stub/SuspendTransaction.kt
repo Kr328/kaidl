@@ -153,8 +153,6 @@ fun CodeGenerator.writeSuspendTransactionFile() {
                                 completable.transact(CompletableBinder.TRANSACTION_complete, r, null, IBinder.FLAG_ONEWAY)
                             }
                         }
-
-                        throw e
                     } finally {
                         withContext(NonCancellable) {
                             r.recycle()

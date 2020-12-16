@@ -3,14 +3,14 @@ buildscript {
     rootProject.extra.let {
         it["gGroupId"] = "com.github.kr328.kaidl"
 
-        it["gKotlinVersion"] = "1.4.20"
+        it["gKotlinVersion"] = "1.4.21"
 
         it["gCompileSdkVersion"] = 30
         it["gTargetSdkVersion"] = 30
         it["gMinSdkVersion"] = 21
 
-        it["gVersionCode"] = 104
-        it["gVersionName"] = "1.4"
+        it["gVersionCode"] = 105
+        it["gVersionName"] = "1.5"
 
         it["gKotlinCoroutineVersion"] = "1.4.2"
         it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20201204"
@@ -27,7 +27,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0-alpha02")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha03")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$gKotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong

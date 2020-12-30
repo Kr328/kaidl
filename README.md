@@ -98,9 +98,9 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
 
     ```kotlin
      dependencies {
-         ksp("com.github.kr328.kaidl:kaidl:1.3")
+         ksp("com.github.kr328.kaidl:kaidl:1.5")
 
-         implementation("com.github.kr328.kaidl:kaidl-runtime:1.3")
+         implementation("com.github.kr328.kaidl:kaidl-runtime:1.5")
 
          // ...other dependencies
      }

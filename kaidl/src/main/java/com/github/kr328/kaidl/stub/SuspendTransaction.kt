@@ -2,9 +2,15 @@ package com.github.kr328.kaidl.stub
 
 import com.github.kr328.kaidl.resolver.INTERFACE
 import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 
-fun CodeGenerator.writeSuspendTransactionFile() {
-    createNewFile(INTERFACE.packageName, "SuspendTransaction").use {
+fun CodeGenerator.writeSuspendTransactionFile(classes: List<KSClassDeclaration>) {
+    createNewFile(
+        Dependencies(true, *classes.mapNotNull { it.containingFile }.toTypedArray()),
+        INTERFACE.packageName,
+        "SuspendTransaction"
+    ).use {
         val content = """
             package com.github.kr328.kaidl
 

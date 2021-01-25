@@ -51,19 +51,10 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
 
 - Add 'KSP' to your project
 
-  + Override `resolutionStrategy` in your project's `setting.gradle(.kts)`
+  + Add ksp plugin repository in your project's `setting.gradle(.kts)`
 
      ```kotlin
      pluginManagement {
-         resolutionStrategy {
-             eachPlugin {
-                 when (requested.id.id) {
-                     "symbol-processing" ->
-                         useModule("com.google.devtools.ksp:symbol-processing:1.4.20-dev-experimental-20201204")
-                 }
-             }
-         }
-   
          repositories {
                  gradlePluginPortal()
                  google()
@@ -75,7 +66,7 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
    
      ```kotlin
      plugins {
-         id("symbol-processing")
+         id("com.google.devtools.ksp") version "1.4.20-dev-experimental-20210120"
          // ...other plugins
      }
      ```
@@ -98,9 +89,9 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
 
     ```kotlin
      dependencies {
-         ksp("com.github.kr328.kaidl:kaidl:1.5")
+         ksp("com.github.kr328.kaidl:kaidl:1.6")
 
-         implementation("com.github.kr328.kaidl:kaidl-runtime:1.5")
+         implementation("com.github.kr328.kaidl:kaidl-runtime:1.6")
 
          // ...other dependencies
      }

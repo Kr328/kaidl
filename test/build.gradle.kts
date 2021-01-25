@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("symbol-processing")
+    id("com.google.devtools.ksp") version "1.4.20-dev-experimental-20210120"
 }
 
 val gCompileSdkVersion: Int by rootProject.extra

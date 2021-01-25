@@ -4,10 +4,7 @@ import com.github.kr328.kaidl.resolver.resolveFunctions
 import com.github.kr328.kaidl.resolver.store
 import com.github.kr328.kaidl.resolver.toClassName
 import com.github.kr328.kaidl.stub.writeSuspendTransactionFile
-import com.google.devtools.ksp.processing.CodeGenerator
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
@@ -22,17 +19,18 @@ class KaidlProcessor : SymbolProcessor {
     }
 
     override fun init(
-            options: Map<String, String>,
-            kotlinVersion: KotlinVersion,
-            codeGenerator: CodeGenerator,
-            logger: KSPLogger
+        options: Map<String, String>,
+        kotlinVersion: KotlinVersion,
+        codeGenerator: CodeGenerator,
+        logger: KSPLogger
     ) {
         this.codeGenerator = codeGenerator
     }
 
     override fun process(resolver: Resolver) {
         resolver.store {
-            val classes = resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
+            val classes =
+                resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
                     .filterIsInstance<KSClassDeclaration>()
 
             classes.forEach {
@@ -43,8 +41,12 @@ class KaidlProcessor : SymbolProcessor {
                 generate(it)
             }
 
-            if (classes.any { it.getAllFunctions().any { f -> f.modifiers.contains(Modifier.SUSPEND) } }) {
-                codeGenerator.writeSuspendTransactionFile()
+            val suspendableClasses = classes.filter {
+                it.getAllFunctions().any { f -> f.modifiers.contains(Modifier.SUSPEND) }
+            }
+
+            if (suspendableClasses.isNotEmpty()) {
+                codeGenerator.writeSuspendTransactionFile(suspendableClasses)
             }
         }
     }
@@ -52,28 +54,32 @@ class KaidlProcessor : SymbolProcessor {
     private fun generate(classDeclaration: KSClassDeclaration) {
         val className = classDeclaration.toClassName()
         val functions = classDeclaration.resolveFunctions()
+        val dependencies = Dependencies(true, classDeclaration.containingFile!!)
 
-        codeGenerator.createNewFile(className.packageName, className.simpleName).writer().use {
+        codeGenerator.createNewFile(dependencies, className.packageName, className.simpleName)
+            .writer().use {
             FileSpec.builder(className.packageName, "")
-                    .addComment("Generated for $className")
-                    .addAnnotation(AnnotationSpec.builder(Suppress::class)
-                            .addMember(DEFAULT_SUPPRESS.joinToString(", ") { s -> "\"$s\"" })
-                            .build())
-                    .addStub(className, functions)
-                    .addProxyClass(className, functions)
-                    .addWrap(className)
-                    .addUnwrap(className)
-                    .build()
-                    .writeTo(it)
+                .addComment("Generated for $className")
+                .addAnnotation(
+                    AnnotationSpec.builder(Suppress::class)
+                        .addMember(DEFAULT_SUPPRESS.joinToString(", ") { s -> "\"$s\"" })
+                        .build()
+                )
+                .addStub(className, functions)
+                .addProxyClass(className, functions)
+                .addWrap(className)
+                .addUnwrap(className)
+                .build()
+                .writeTo(it)
         }
     }
 
     companion object {
         private val DEFAULT_SUPPRESS = arrayOf(
-                "NAME_SHADOWING",
-                "UNUSED_VARIABLE",
-                "UNNECESSARY_NOT_NULL_ASSERTION",
-                "UNUSED_PARAMETER",
+            "NAME_SHADOWING",
+            "UNUSED_VARIABLE",
+            "UNNECESSARY_NOT_NULL_ASSERTION",
+            "UNUSED_PARAMETER",
         )
     }
 }

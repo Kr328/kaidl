@@ -9,11 +9,11 @@ buildscript {
         it["gTargetSdkVersion"] = 30
         it["gMinSdkVersion"] = 21
 
-        it["gVersionCode"] = 105
-        it["gVersionName"] = "1.5"
+        it["gVersionCode"] = 106
+        it["gVersionName"] = "1.6"
 
         it["gKotlinCoroutineVersion"] = "1.4.2"
-        it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20201204"
+        it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20210120"
         it["gJunitVersion"] = "4.13.1"
         it["gAndroidXJunitVersion"] = "1.1.2"
         it["gAndroidXEspressoVersion"] = "3.3.0"
@@ -27,7 +27,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0-alpha03")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha04")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$gKotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong

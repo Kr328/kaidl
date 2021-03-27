@@ -56,8 +56,8 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
      ```kotlin
      pluginManagement {
          repositories {
-                 gradlePluginPortal()
-                 google()
+             gradlePluginPortal()
+             google()
          }
      }
      ```
@@ -66,7 +66,7 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
    
      ```kotlin
      plugins {
-         id("com.google.devtools.ksp") version "1.4.20-dev-experimental-20210120"
+         id("com.google.devtools.ksp") version "1.4.31-1.0.0-alpha06"
          // ...other plugins
      }
      ```
@@ -80,7 +80,7 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
          // ... other repositories
    
          maven {
-             url = URI("https://dl.bintray.com/kr328/kaidl")
+             url = uri("https://maven.kr328.app")
          }
      }
      ```
@@ -89,9 +89,9 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
 
     ```kotlin
      dependencies {
-         ksp("com.github.kr328.kaidl:kaidl:1.6")
+         ksp("com.github.kr328.kaidl:kaidl:1.8")
 
-         implementation("com.github.kr328.kaidl:kaidl-runtime:1.6")
+         implementation("com.github.kr328.kaidl:kaidl-runtime:1.8")
 
          // ...other dependencies
      }

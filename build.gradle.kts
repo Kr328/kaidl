@@ -3,18 +3,18 @@ buildscript {
     rootProject.extra.let {
         it["gGroupId"] = "com.github.kr328.kaidl"
 
-        it["gKotlinVersion"] = "1.4.21"
+        it["gKotlinVersion"] = "1.4.31"
 
         it["gCompileSdkVersion"] = 30
         it["gTargetSdkVersion"] = 30
         it["gMinSdkVersion"] = 21
 
-        it["gVersionCode"] = 106
-        it["gVersionName"] = "1.6"
+        it["gVersionCode"] = 108
+        it["gVersionName"] = "1.8"
 
-        it["gKotlinCoroutineVersion"] = "1.4.2"
-        it["gKotlinSymbolVersion"] = "1.4.20-dev-experimental-20210120"
-        it["gJunitVersion"] = "4.13.1"
+        it["gKotlinCoroutineVersion"] = "1.4.3"
+        it["gKotlinSymbolVersion"] = "1.4.31-1.0.0-alpha06"
+        it["gJunitVersion"] = "4.13.2"
         it["gAndroidXJunitVersion"] = "1.1.2"
         it["gAndroidXEspressoVersion"] = "3.3.0"
         it["gKotlinpoetVersion"] = "1.7.2"
@@ -24,10 +24,10 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0-alpha04")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha12")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$gKotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -38,7 +38,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 

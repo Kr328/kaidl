@@ -1,13 +1,14 @@
 package com.github.kr328.kaidl
 
+import com.github.kr328.kaidl.resolver.INTERFACE
 import com.github.kr328.kaidl.resolver.resolveFunctions
 import com.github.kr328.kaidl.resolver.store
 import com.github.kr328.kaidl.resolver.toClassName
-import com.github.kr328.kaidl.stub.writeSuspendTransactionFile
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 
@@ -27,27 +28,24 @@ class KaidlProcessor : SymbolProcessor {
         this.codeGenerator = codeGenerator
     }
 
-    override fun process(resolver: Resolver) {
-        resolver.store {
-            val classes =
-                resolver.getSymbolsWithAnnotation(com.github.kr328.kaidl.resolver.INTERFACE.canonicalName)
-                    .filterIsInstance<KSClassDeclaration>()
+    override fun process(resolver: Resolver): List<KSAnnotated> {
+        return resolver.store {
+            val classes = resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
+                .filterIsInstance<KSClassDeclaration>()
+
+            val result = classes.filter { !it.validate() }
 
             classes.forEach {
                 require(it.classKind == ClassKind.INTERFACE) {
                     throw IllegalArgumentException("@BinderInterface support only interfaces")
                 }
 
-                generate(it)
+                if (it.validate()) {
+                    generate(it)
+                }
             }
 
-            val suspendableClasses = classes.filter {
-                it.getAllFunctions().any { f -> f.modifiers.contains(Modifier.SUSPEND) }
-            }
-
-            if (suspendableClasses.isNotEmpty()) {
-                codeGenerator.writeSuspendTransactionFile(suspendableClasses)
-            }
+            result
         }
     }
 

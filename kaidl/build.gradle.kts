@@ -1,12 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.Properties
 
 plugins {
     id("application")
     id("kotlin")
     id("maven")
     id("maven-publish")
-    id("com.jfrog.bintray") version "1.8.5"
 }
 
 val gGroupId: String by rootProject.extra
@@ -28,7 +26,26 @@ tasks.withType(KotlinCompile::class) {
 
 publishing {
     publications {
-        create("Bintray", type = MavenPublication::class) {
+        create("release", type = MavenPublication::class) {
+            pom {
+                name.set("kaidl")
+                description.set("Generate AIDL-like android binder interface with Kotlin")
+                url.set("https://github.com/Kr328/kaidl")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("http://www.opensource.org/licenses/mit-license.php")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("kr328")
+                        name.set("Kr328")
+                        email.set("kr328app@outlook.com")
+                    }
+                }
+            }
+
             from(components["java"])
 
             groupId = gGroupId
@@ -37,30 +54,9 @@ publishing {
             version = gVersionName
         }
     }
-}
-
-bintray {
-    val properties = try {
-        Properties().apply {
-            rootProject.file("local.properties").inputStream().use {
-                load(it)
-            }
-        }
-    } catch (e: Exception) {
-        return@bintray
-    }
-
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.key")
-
-    setPublications("Bintray")
-
-    pkg.apply {
-        repo = "kaidl"
-        name = "kaidl"
-
-        version.apply {
-            name = gVersionName
+    repositories {
+        maven {
+            url = uri("${rootProject.buildDir}/release")
         }
     }
 }

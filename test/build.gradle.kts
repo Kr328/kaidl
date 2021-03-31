@@ -4,30 +4,31 @@ plugins {
     id("com.google.devtools.ksp") version "1.4.31-1.0.0-alpha06"
 }
 
-val gCompileSdkVersion: Int by rootProject.extra
-val gTargetSdkVersion: Int by rootProject.extra
-val gMinSdkVersion: Int by rootProject.extra
+val moduleId: String by extra
 
-val gVersionCode: Int by rootProject.extra
-val gVersionName: String by rootProject.extra
+val buildTargetSdk: Int by extra
+val buildMinSdk: Int by extra
 
-val gKotlinVersion: String by rootProject.extra
-val gKotlinCoroutineVersion: String by rootProject.extra
-val gJunitVersion: String by rootProject.extra
-val gAndroidXJunitVersion: String by rootProject.extra
-val gAndroidXEspressoVersion: String by rootProject.extra
+val buildVersionCode: Int by extra
+val buildVersionName: String by extra
+
+val coroutineVersion: String by extra
+val junitVersion: String by extra
+val androidJunitVersion: String by extra
+val espressoVersion: String by extra
 
 android {
-    compileSdkVersion(gCompileSdkVersion)
+    compileSdk = buildTargetSdk
 
     defaultConfig {
-        minSdkVersion(gMinSdkVersion)
-        targetSdkVersion(gTargetSdkVersion)
+        minSdk = buildMinSdk
+        targetSdk = buildTargetSdk
 
-        versionCode = gVersionCode
-        versionName = gVersionName
+        versionCode = buildVersionCode
+        versionName = buildVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -37,10 +38,12 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -50,11 +53,11 @@ dependencies {
     ksp(project(":kaidl"))
     implementation(project(":kaidl-runtime"))
 
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$gKotlinVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$gKotlinCoroutineVersion")
-    testImplementation("junit:junit:$gJunitVersion")
-    androidTestImplementation("androidx.test.ext:junit:$gAndroidXJunitVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-core:$gAndroidXEspressoVersion")
+    implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
+    testImplementation("junit:junit:$junitVersion")
+    androidTestImplementation("androidx.test.ext:junit:$androidJunitVersion")
+    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
 }
 
 afterEvaluate {

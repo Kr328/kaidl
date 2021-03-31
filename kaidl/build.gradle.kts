@@ -2,16 +2,19 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("application")
-    id("kotlin")
     id("maven")
     id("maven-publish")
+    kotlin("jvm")
 }
 
-val gGroupId: String by rootProject.extra
-val gVersionName: String by rootProject.extra
-val gKotlinVersion: String by rootProject.extra
-val gKotlinSymbolVersion: String by rootProject.extra
-val gKotlinpoetVersion: String by rootProject.extra
+val moduleId: String by extra
+
+val buildTargetSdk: Int by extra
+val buildMinSdk: Int by extra
+
+val buildVersionName: String by extra
+val kotlinSymbolVersion: String by extra
+val kotlinpoetVersion: String by extra
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -48,12 +51,13 @@ publishing {
 
             from(components["java"])
 
-            groupId = gGroupId
+            groupId = moduleId
             artifactId = "kaidl"
 
-            version = gVersionName
+            version = buildVersionName
         }
     }
+
     repositories {
         maven {
             url = uri("${rootProject.buildDir}/release")
@@ -62,7 +66,7 @@ publishing {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$gKotlinVersion")
-    implementation("com.google.devtools.ksp:symbol-processing-api:$gKotlinSymbolVersion")
-    implementation("com.squareup:kotlinpoet:$gKotlinpoetVersion")
+    implementation(kotlin("stdlib"))
+    implementation("com.google.devtools.ksp:symbol-processing-api:$kotlinSymbolVersion")
+    implementation("com.squareup:kotlinpoet:$kotlinpoetVersion")
 }

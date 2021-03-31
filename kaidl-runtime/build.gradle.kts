@@ -7,27 +7,28 @@ plugins {
     id("maven-publish")
 }
 
-val gCompileSdkVersion: Int by rootProject.extra
-val gTargetSdkVersion: Int by rootProject.extra
-val gMinSdkVersion: Int by rootProject.extra
+val moduleId: String by extra
 
-val gGroupId: String by rootProject.extra
-val gVersionCode: Int by rootProject.extra
-val gVersionName: String by rootProject.extra
+val buildTargetSdk: Int by extra
+val buildMinSdk: Int by extra
 
-val gKotlinCoroutineVersion: String by rootProject.extra
+val buildVersionCode: Int by extra
+val buildVersionName: String by extra
+
+val coroutineVersion: String by extra
 
 android {
-    compileSdkVersion(gCompileSdkVersion)
+    compileSdk = buildTargetSdk
 
     defaultConfig {
-        minSdkVersion(gMinSdkVersion)
-        targetSdkVersion(gTargetSdkVersion)
+        minSdk = buildMinSdk
+        targetSdk = buildTargetSdk
 
-        versionCode = gVersionCode
-        versionName = gVersionName
+        versionCode = buildVersionCode
+        versionName = buildVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -37,17 +38,19 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$gKotlinCoroutineVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
 }
 
 afterEvaluate {
@@ -75,12 +78,13 @@ afterEvaluate {
 
                 from(components["release"])
 
-                groupId = gGroupId
+                groupId = moduleId
                 artifactId = "kaidl-runtime"
 
-                version = gVersionName
+                version = buildVersionName
             }
         }
+
         repositories {
             maven {
                 url = uri("${rootProject.buildDir}/release")

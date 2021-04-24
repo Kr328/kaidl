@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("com.google.devtools.ksp") version "1.4.31-1.0.0-alpha06"
+    id("com.google.devtools.ksp") version "1.4.32-1.0.0-alpha08"
 }
 
 val moduleId: String by extra

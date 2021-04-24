@@ -32,11 +32,11 @@ allprojects {
         val buildVersionName: String by extra("1.9")
 
         val coroutineVersion: String by extra("1.4.3")
-        val kotlinSymbolVersion: String by extra("1.4.31-1.0.0-alpha06")
+        val kotlinSymbolVersion: String by extra("1.4.32-1.0.0-alpha08")
         val junitVersion: String by extra("4.13.2")
         val androidJunitVersion: String by extra("1.1.2")
         val espressoVersion: String by extra("3.3.0")
-        val kotlinpoetVersion: String by extra("1.7.2")
+        val kotlinpoetVersion: String by extra("1.8.0")
     }
 }
 

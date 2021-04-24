@@ -131,6 +131,9 @@ fun suspendTransaction(
             block(r)
 
             completable.transact(CompletableBinder.TRANSACTION_complete, r, null, IBinder.FLAG_ONEWAY)
+        } catch (e: DeadObjectException) {
+            // remote service dead
+            // ignore
         } catch (e: Exception) {
             withContext(NonCancellable) {
                 if (e is CancellationException) {

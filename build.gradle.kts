@@ -28,8 +28,8 @@ allprojects {
         val buildTargetSdk: Int by extra(30)
         val buildMinSdk: Int by extra(21)
 
-        val buildVersionCode: Int by extra(109)
-        val buildVersionName: String by extra("1.9")
+        val buildVersionCode: Int by extra(110)
+        val buildVersionName: String by extra("1.10")
 
         val coroutineVersion: String by extra("1.4.3")
         val kotlinSymbolVersion: String by extra("1.4.32-1.0.0-alpha08")

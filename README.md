@@ -66,7 +66,7 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
    
      ```kotlin
      plugins {
-         id("com.google.devtools.ksp") version "1.4.31-1.0.0-alpha06"
+         id("com.google.devtools.ksp") version "1.5.0-1.0.0-alpha10"
          // ...other plugins
      }
      ```
@@ -89,9 +89,9 @@ Generate [AIDL](https://developer.android.com/guide/components/aidl)-like androi
 
     ```kotlin
      dependencies {
-         ksp("com.github.kr328.kaidl:kaidl:1.8")
+         ksp("com.github.kr328.kaidl:kaidl:1.11")
 
-         implementation("com.github.kr328.kaidl:kaidl-runtime:1.8")
+         implementation("com.github.kr328.kaidl:kaidl-runtime:1.11")
 
          // ...other dependencies
      }

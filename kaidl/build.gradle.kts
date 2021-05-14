@@ -2,9 +2,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("application")
-    id("maven")
-    id("maven-publish")
     kotlin("jvm")
+    `maven-publish`
 }
 
 val moduleId: String by extra

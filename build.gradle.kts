@@ -1,16 +1,15 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 buildscript {
-    val kotlinVersion = "1.4.32"
+    val kotlinVersion = "1.5.0"
 
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.1.3")
+        classpath("com.android.tools.build:gradle:4.2.1")
         classpath(kotlin("gradle-plugin", version = kotlinVersion))
     }
 }
@@ -19,7 +18,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     extra.apply {
@@ -28,11 +26,11 @@ allprojects {
         val buildTargetSdk: Int by extra(30)
         val buildMinSdk: Int by extra(21)
 
-        val buildVersionCode: Int by extra(110)
-        val buildVersionName: String by extra("1.10")
+        val buildVersionCode: Int by extra(111)
+        val buildVersionName: String by extra("1.11")
 
         val coroutineVersion: String by extra("1.4.3")
-        val kotlinSymbolVersion: String by extra("1.4.32-1.0.0-alpha08")
+        val kotlinSymbolVersion: String by extra("1.5.0-1.0.0-alpha10")
         val junitVersion: String by extra("4.13.2")
         val androidJunitVersion: String by extra("1.1.2")
         val espressoVersion: String by extra("3.3.0")

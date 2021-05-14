@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("com.google.devtools.ksp") version "1.4.32-1.0.0-alpha08"
+    id("com.google.devtools.ksp") version "1.5.0-1.0.0-alpha10"
 }
 
 val moduleId: String by extra
@@ -58,9 +58,4 @@ dependencies {
     testImplementation("junit:junit:$junitVersion")
     androidTestImplementation("androidx.test.ext:junit:$androidJunitVersion")
     androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
-}
-
-afterEvaluate {
-    tasks["assembleDebug"].dependsOn(tasks["kspDebugKotlin"])
-    tasks["assembleRelease"].dependsOn(tasks["kspReleaseKotlin"])
 }

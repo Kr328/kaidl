@@ -6,7 +6,7 @@ import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import kotlin.reflect.KClass
 
-fun FileSpec.Builder.addStub(forClass: ClassName, functions: List<FunSpec>): FileSpec.Builder {
+fun FileSpec.Builder.addStub(forClass: ClassName, functions: Sequence<FunSpec>): FileSpec.Builder {
     val stub =
         TypeSpec.classBuilder(ClassName(forClass.packageName, forClass.simpleName + "Delegate"))
             .primaryConstructor(FunSpec.constructorBuilder().addParameter("impl", forClass).build())
@@ -39,7 +39,7 @@ fun FileSpec.Builder.addWrap(forClass: ClassName): FileSpec.Builder {
 
 fun FileSpec.Builder.addProxyClass(
     forClass: ClassName,
-    functions: List<FunSpec>
+    functions: Sequence<FunSpec>
 ): FileSpec.Builder {
     val clazz = TypeSpec.classBuilder(forClass.proxy)
         .addSuperinterface(forClass)
@@ -75,7 +75,7 @@ fun FileSpec.Builder.addUnwrap(forClass: ClassName): FileSpec.Builder {
 
 fun TypeSpec.Builder.addCompanion(
     forClass: ClassName,
-    functions: List<FunSpec>
+    functions: Sequence<FunSpec>
 ): TypeSpec.Builder {
     val companion = TypeSpec.companionObjectBuilder().apply {
         val codes = functions.mapOfCodes()
@@ -100,7 +100,7 @@ fun TypeSpec.Builder.addGetDescriptor(): TypeSpec.Builder {
 }
 
 fun TypeSpec.Builder.addOnTransact(
-    functions: List<FunSpec>
+    functions: Sequence<FunSpec>
 ): TypeSpec.Builder {
     val code = CodeBlock.builder().apply {
         beginControlFlow("when (code)")
@@ -215,7 +215,7 @@ fun TypeSpec.Builder.addProxy(forClass: ClassName, function: FunSpec): TypeSpec.
     return addFunction(func.addCode(code.build()).build())
 }
 
-fun List<FunSpec>.mapOfCodes(): Map<String, Int> {
+fun Sequence<FunSpec>.mapOfCodes(): Map<String, Int> {
     val definedCodes = mapNotNull { it.tag(CodeValue::class)?.code }
 
     var generatedCode = -1

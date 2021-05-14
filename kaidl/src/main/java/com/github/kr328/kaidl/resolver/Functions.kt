@@ -8,7 +8,7 @@ import com.squareup.kotlinpoet.UNIT
 
 data class CodeValue(val code: Int)
 
-fun KSClassDeclaration.resolveFunctions(): List<FunSpec> {
+fun KSClassDeclaration.resolveFunctions(): Sequence<FunSpec> {
     return declarations.filterIsInstance<KSFunctionDeclaration>()
         .map {
             FunSpec.builder(it.simpleName.asString()).apply {

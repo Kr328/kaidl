@@ -32,6 +32,7 @@ class KaidlProcessor : SymbolProcessor {
         return resolver.store {
             val classes = resolver.getSymbolsWithAnnotation(INTERFACE.canonicalName)
                 .filterIsInstance<KSClassDeclaration>()
+                .toList()
 
             val result = classes.filter { !it.validate() }
 

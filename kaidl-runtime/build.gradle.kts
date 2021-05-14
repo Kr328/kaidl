@@ -3,8 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("maven")
-    id("maven-publish")
+    `maven-publish`
 }
 
 val moduleId: String by extra

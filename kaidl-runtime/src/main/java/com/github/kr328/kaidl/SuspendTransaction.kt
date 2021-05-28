@@ -5,6 +5,8 @@ import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 import kotlin.coroutines.resumeWithException
 
+private object KaidlScope : CoroutineScope by CoroutineScope(Dispatchers.IO)
+
 private abstract class CompletableBinder : Binder() {
     abstract fun onComplete(data: Parcel)
     abstract fun onCanceled()
@@ -124,7 +126,7 @@ fun suspendTransaction(
 
     var finializer: () -> Unit = {}
 
-    val job = GlobalScope.launch {
+    val job = KaidlScope.launch {
         val r = Parcel.obtain()
 
         try {
@@ -135,18 +137,23 @@ fun suspendTransaction(
             // remote service dead
             // ignore
         } catch (e: Exception) {
-            withContext(NonCancellable) {
-                if (e is CancellationException) {
-                    completable.transact(CompletableBinder.TRANSACTION_canceled, r, null, IBinder.FLAG_ONEWAY)
-                } else {
-                    r.setDataPosition(0)
+            try {
+                withContext(NonCancellable) {
+                    if (e is CancellationException) {
+                        completable.transact(CompletableBinder.TRANSACTION_canceled, r, null, IBinder.FLAG_ONEWAY)
+                    } else {
+                        r.setDataPosition(0)
 
-                    r.writeException(IllegalArgumentException(e.message).apply {
-                        stackTrace = e.stackTrace
-                    })
+                        r.writeException(IllegalArgumentException(e.message).apply {
+                            stackTrace = e.stackTrace
+                        })
 
-                    completable.transact(CompletableBinder.TRANSACTION_complete, r, null, IBinder.FLAG_ONEWAY)
+                        completable.transact(CompletableBinder.TRANSACTION_complete, r, null, IBinder.FLAG_ONEWAY)
+                    }
                 }
+            } catch (e: Exception) {
+                // remote service dead
+                // ignore
             }
         } finally {
             withContext(NonCancellable) {

@@ -12,20 +12,9 @@ import com.google.devtools.ksp.validate
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 
-class KaidlProcessor : SymbolProcessor {
-    private lateinit var codeGenerator: CodeGenerator
-
+class KaidlProcessor(private val codeGenerator: CodeGenerator) : SymbolProcessor {
     override fun finish() {
 
-    }
-
-    override fun init(
-        options: Map<String, String>,
-        kotlinVersion: KotlinVersion,
-        codeGenerator: CodeGenerator,
-        logger: KSPLogger
-    ) {
-        this.codeGenerator = codeGenerator
     }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {

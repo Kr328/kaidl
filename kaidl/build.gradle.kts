@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.*
 
 plugins {
     id("application")
@@ -26,6 +27,12 @@ tasks.withType(KotlinCompile::class) {
     }
 }
 
+task("sourcesJar", type = Jar::class) {
+    archiveClassifier.set("sources")
+
+    from(sourceSets["main"].allSource)
+}
+
 publishing {
     publications {
         create("release", type = MavenPublication::class) {
@@ -50,6 +57,8 @@ publishing {
 
             from(components["java"])
 
+            artifact(tasks["sourcesJar"])
+
             groupId = moduleId
             artifactId = "kaidl"
 
@@ -58,8 +67,18 @@ publishing {
     }
 
     repositories {
-        maven {
-            url = uri("${rootProject.buildDir}/release")
+        val publishFile = rootProject.file("publish.properties")
+        if (publishFile.exists()) {
+            val publish = Properties().apply { publishFile.inputStream().use(this::load) }
+
+            maven {
+                url = uri(publish.getProperty("publish.url")!!)
+
+                credentials {
+                    username = publish.getProperty("publish.user")!!
+                    password = publish.getProperty("publish.password")!!
+                }
+            }
         }
     }
 }

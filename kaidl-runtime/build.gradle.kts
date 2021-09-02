@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.*
 
 plugins {
     id("com.android.library")
@@ -52,6 +52,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutineVersion")
 }
 
+task("sourcesJar", type = Jar::class) {
+    archiveClassifier.set("sources")
+
+    from(android.sourceSets["main"].java.srcDirs)
+}
+
 afterEvaluate {
     publishing {
         publications {
@@ -77,6 +83,8 @@ afterEvaluate {
 
                 from(components["release"])
 
+                artifact(tasks["sourcesJar"])
+
                 groupId = moduleId
                 artifactId = "kaidl-runtime"
 
@@ -85,8 +93,18 @@ afterEvaluate {
         }
 
         repositories {
-            maven {
-                url = uri("${rootProject.buildDir}/release")
+            val publishFile = rootProject.file("publish.properties")
+            if (publishFile.exists()) {
+                val publish = Properties().apply { publishFile.inputStream().use(this::load) }
+
+                maven {
+                    url = uri(publish.getProperty("publish.url")!!)
+
+                    credentials {
+                        username = publish.getProperty("publish.user")!!
+                        password = publish.getProperty("publish.password")!!
+                    }
+                }
             }
         }
     }

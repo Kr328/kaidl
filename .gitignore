@@ -8,3 +8,4 @@
 .cxx
 build/
 local.properties
+publish.properties

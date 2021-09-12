@@ -26,7 +26,7 @@ allprojects {
 
 subprojects {
     group = "com.github.kr328.kaidl"
-    version = "1.14"
+    version = "1.15"
 
     afterEvaluate {
         val android = extensions.findByType(BaseExtension::class)?.apply {
